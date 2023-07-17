@@ -1,0 +1,36 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-test-staging-171813-authRole",
+      "UnauthRoleArn": "arn:aws:iam::408387088770:role/amplify-test-staging-171813-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::408387088770:role/amplify-test-staging-171813-authRole",
+      "Region": "eu-north-1",
+      "DeploymentBucketName": "amplify-test-staging-171813-deployment",
+      "UnauthRoleName": "amplify-test-staging-171813-unauthRole",
+      "StackName": "amplify-test-staging-171813",
+      "StackId": "arn:aws:cloudformation:eu-north-1:408387088770:stack/amplify-test-staging-171813/6a7b7e60-226a-11ee-9455-0e0aa97efe26",
+      "AmplifyAppId": "dli27luv5inxv",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-test-staging-171813-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+    },
+    "categories": {
+      "auth": {
+        "Test": {}
+      },
+      "function": {
+        "TestPostConfirmation": {
+          "deploymentBucketName": "amplify-test-staging-171813-deployment",
+          "s3Key": "amplify-builds/TestPostConfirmation-7946335052716454786c-build.zip"
+        }
+      },
+      "api": {
+        "Test": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "dli27luv5inxv",
+          "type": "manual"
+        }
+      }
+    }
+  }
+}
