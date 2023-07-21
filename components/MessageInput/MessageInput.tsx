@@ -1,48 +1,65 @@
-import React,{useState} from 'react'
-import { View, KeyboardAvoidingView,Platform, StyleSheet, TextInput,Pressable } from 'react-native'
+import React, { useState } from 'react'
+import { View, KeyboardAvoidingView, Platform, StyleSheet, TextInput, Pressable } from 'react-native'
 import { SimpleLineIcons } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons'; 
-import { Feather,AntDesign  } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
+import { Feather, AntDesign } from '@expo/vector-icons';
+import { Auth, DataStore } from 'aws-amplify';
+import { ChatRoom, LazyMessage, Message } from '../../src/models';
 
-const MessageInput = () => {
-    const [Message,setMessage] = useState('')
-    const sendMessage = ()=>{
-        console.warn("sending",Message);
-        setMessage("")
+const MessageInput = ({ chatRoom }) => {
+    const [message, setmessage] = useState('')
+    const sendMessage = async () => {
+        const authUser = await Auth.currentAuthenticatedUser();
+
+        const newMessage = await DataStore.save(new Message({
+            content: message,
+            userID: authUser.attributes.sub,
+            chatroomID: chatRoom.id
+        }))
+
+        updateLastMessage(newMessage)
+        setmessage('')
+    };
+    const updateLastMessage = async (newMessage: LazyMessage | null | undefined) => {
         
-    }
+        DataStore.save(
+            ChatRoom.copyOf(chatRoom, (updatedChatRoom) => {
+                updatedChatRoom.LastMessage = newMessage;
+            })
+        );
+    };
 
-    const onPlusMessage = ()=>{
+    const onPlusMessage = () => {
         console.warn('on plus');
-        
+
     }
     const onPress = () => {
-        if(Message){
+        if (Message) {
             sendMessage()
-        }else{
-onPlusMessage()
+        } else {
+            onPlusMessage()
         }
-        
+
     }
     return (
         <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-keyboardVerticalOffset={100}
-        style={styles.root}>
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={100}
+            style={styles.root}>
             <View style={styles.inputContainer}>
                 <SimpleLineIcons style={styles.icon} name="emotsmile" size={24} color="#595959" />
                 <TextInput
-                value={Message}
-                onChange={setMessage}
-                placeholder='Message'
-                 style={styles.input} />
+                    value={message}
+                    onChangeText={setmessage}
+                    placeholder='Message'
+                    style={styles.input} />
                 <Ionicons style={styles.icon} name="camera-outline" size={24} color="#595959" />
                 <Feather style={styles.icon} name="mic" size={24} color="#595959" />
             </View>
             <Pressable onPress={onPress} style={styles.buttonContainer}>
                 {
                     Message ? <Feather name="send" size={24} color="blue" /> :
-                    <Feather name="send" size={24} color="grey" />
+                        <Feather name="send" size={24} color="grey" />
 
                 }
             </Pressable>

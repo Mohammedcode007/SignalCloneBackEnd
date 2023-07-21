@@ -12,23 +12,23 @@ export default function TabOneScreen() {
   const chatRoomData = chatRoomDummy;
   const navigation = useNavigation();
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
-  console.log(chatRoom, "555555555555555555555555");
+  // console.log(chatRoom, "555555555555555555555555");
 
   const route = useRoute();
   const fetchChatRoom = async () => {
     try {
       const userData = await Auth.currentAuthenticatedUser();
       if (userData) {
-        console.log(userData?.attributes?.sub, "userData");
+        // console.log(userData?.attributes?.sub, "userData");
       }
 
       const chatRooms1 = await DataStore.query(ChatRoomUser);
-      console.log(chatRooms1, "chatRoomsUschatRoomser1");
+      // console.log(chatRooms1, "chatRoomsUschatRoomser1");
 
       const chatRoomsIds = chatRooms1
         .filter((ChatRoomUser) => ChatRoomUser?.userId === userData?.attributes?.sub)
         .map((ChatRoomUser) => ChatRoomUser.chatRoomId);
-      console.log(chatRoomsIds, "chatRoomsUschatRoomser");
+      // console.log(chatRoomsIds, "chatRoomsUschatRoomser");
 
       const chatRoomDetails = await Promise.all(chatRoomsIds.map(async (chatRoomItem) => await DataStore.query(ChatRoom, chatRoomItem)));
       setChatRoom(chatRoomDetails)
@@ -42,13 +42,14 @@ export default function TabOneScreen() {
   }, []);
   const handleItemPress = (item) => {
     // Navigate to another screen with the selected item
-    navigation.navigate('ChatRoomScreen', { chatRoomDataItem: item });
+    
+    navigation.navigate('ChatRoomScreen', { chatRoomDataItem: item.id });
   };
 
   return (
     <View style={styles.page}>
       <FlatList
-        data={chatRoomData}
+        data={chatRoom}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleItemPress(item)}>
