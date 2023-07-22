@@ -5,9 +5,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Feather, AntDesign } from '@expo/vector-icons';
 import { Auth, DataStore } from 'aws-amplify';
 import { ChatRoom, LazyMessage, Message } from '../../src/models';
+import EmojiSelector from "react-native-emoji-selector";
 
 const MessageInput = ({ chatRoom }) => {
     const [message, setmessage] = useState('')
+    const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+
     const sendMessage = async () => {
         const authUser = await Auth.currentAuthenticatedUser();
 
@@ -19,9 +22,10 @@ const MessageInput = ({ chatRoom }) => {
 
         updateLastMessage(newMessage)
         setmessage('')
+        setIsEmojiPickerOpen(false)
     };
     const updateLastMessage = async (newMessage: LazyMessage | null | undefined) => {
-        
+
         DataStore.save(
             ChatRoom.copyOf(chatRoom, (updatedChatRoom) => {
                 updatedChatRoom.LastMessage = newMessage;
@@ -45,32 +49,49 @@ const MessageInput = ({ chatRoom }) => {
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={100}
-            style={styles.root}>
-            <View style={styles.inputContainer}>
-                <SimpleLineIcons style={styles.icon} name="emotsmile" size={24} color="#595959" />
-                <TextInput
-                    value={message}
-                    onChangeText={setmessage}
-                    placeholder='Message'
-                    style={styles.input} />
-                <Ionicons style={styles.icon} name="camera-outline" size={24} color="#595959" />
-                <Feather style={styles.icon} name="mic" size={24} color="#595959" />
-            </View>
-            <Pressable onPress={onPress} style={styles.buttonContainer}>
-                {
-                    Message ? <Feather name="send" size={24} color="blue" /> :
-                        <Feather name="send" size={24} color="grey" />
+            style={[styles.root, { height: isEmojiPickerOpen ? '50%' : 'auto' }]}>
+            <View style={styles.row}>
+                <View style={styles.inputContainer}>
+                    <Pressable
+                        onPress={() =>
+                            setIsEmojiPickerOpen((currentValue) => !currentValue)
+                        }>
+                        <SimpleLineIcons style={styles.icon} name="emotsmile" size={24} color="#595959" />
 
-                }
-            </Pressable>
+                    </Pressable>
+                    <TextInput
+                        value={message}
+                        onChangeText={setmessage}
+                        placeholder='Message'
+                        style={styles.input} />
+                    <Ionicons style={styles.icon} name="camera-outline" size={24} color="#595959" />
+                    <Feather style={styles.icon} name="mic" size={24} color="#595959" />
+                </View>
+                <Pressable onPress={onPress} style={styles.buttonContainer}>
+                    {
+                        Message ? <Feather name="send" size={24} color="blue" /> :
+                            <Feather name="send" size={24} color="grey" />
+
+                    }
+                </Pressable>
+            </View>
+
+
+            {isEmojiPickerOpen && (
+                <EmojiSelector
+                    onEmojiSelected={(emoji) =>
+                        setmessage((currentMessage) => currentMessage + emoji)
+                    }
+                    columns={8}
+                />
+            )}
         </KeyboardAvoidingView>
 
     )
 }
 const styles = StyleSheet.create({
     root: {
-        flexDirection: 'row',
-        padding: 10
+        padding: 10,
     },
     buttonContainer: {
         width: 40,
@@ -82,6 +103,9 @@ const styles = StyleSheet.create({
     },
     icon: {
         marginHorizontal: 5
+    },
+    row: {
+        flexDirection: "row",
     },
     inputContainer: {
         backgroundColor: '#f2f2f2',
