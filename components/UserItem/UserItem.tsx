@@ -21,7 +21,6 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem }: UserItemProps) => {
       const newChatRoom = await DataStore.save(new ChatRoom({ newMessages: 0 }));
   
       const authUser = await Auth.currentAuthenticatedUser();
-      console.log(authUser.attributes.sub);
   
       const loggedInUserId = authUser.attributes.sub;
       const loggedInUser = await DataStore.query(User, loggedInUserId);
@@ -49,7 +48,6 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem }: UserItemProps) => {
  
 
   
-  console.log(oneUserItem,"chatRoomDataItem");
   
   
   return (

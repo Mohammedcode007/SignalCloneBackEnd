@@ -7,13 +7,14 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { DataStore } from "@aws-amplify/datastore";
 import { ChatRoom, Message as MessageModel } from "../src/models";
 import { Auth,SortDirection } from 'aws-amplify';
+import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
 const ChatRoomScreen = () => {
   const [messages, setMessages] = useState<MessageModel[]>([]);
   const [messageReplyTo, setMessageReplyTo] = useState<MessageModel | null>(
     null
   );
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
-  console.log(chatRoom, "chatRoom");
+  // console.log(chatRoom, "chatRoom");
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -64,7 +65,7 @@ const ChatRoomScreen = () => {
         sort: (message) => message.createdAt(SortDirection.DESCENDING),
       } // Use dot notation and eq operator
     );
-    console.log(fetchedMessages, "fetchedMessages");
+    // console.log(fetchedMessages, "fetchedMessages");
     setMessages(fetchedMessages);
   };
 
@@ -74,6 +75,9 @@ const ChatRoomScreen = () => {
 
   return (
     <SafeAreaView style={styles.page}>
+      <View style={{height:100,width:'100%',marginTop:'10%'}}>
+<ChatRoomHeader id={route.params?.chatRoomDataItem}/>
+      </View>
       <FlatList
         data={messages}
         inverted

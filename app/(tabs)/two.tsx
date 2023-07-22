@@ -10,8 +10,9 @@ import chatRoomDummy from "../../assets/dummy-data/ChatRooms"
 import UserItem from '../../components/UserItem/UserItem';
 import { DataStore } from "@aws-amplify/datastore";
 import { User } from "../../src/models";
+import ChatRoomHeader from '../../components/ChatRoomHeader/ChatRoomHeader';
 
-export default function TabTwoScreen() {
+export default function TabTwoScreen({route}) {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isNewGroup, setIsNewGroup] = useState(false);

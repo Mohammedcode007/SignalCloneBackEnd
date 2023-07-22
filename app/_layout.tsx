@@ -10,6 +10,7 @@ import { Amplify } from 'aws-amplify';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react-native';
 
 import awsconfig from '../src/aws-exports';
+import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
 
 Amplify.configure(awsconfig);
 export {
@@ -63,7 +64,7 @@ function RootLayoutNav() {
 
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="ChatRoomScreen" options={{
-            headerShown: true,
+            headerShown: false,
             headerTitle: () => <ChatRoomHeader />,
           }} />
 
@@ -75,16 +76,3 @@ function RootLayoutNav() {
 }
 
 
-const ChatRoomHeader = () => {
-  const { width } = useWindowDimensions()
-  return (
-    <SafeAreaView style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '70%' }}>
-      <Image source={{ uri: 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/jeff.jpeg' }}
-        style={{ width: 30, height: 30, borderRadius: 30 }}
-      />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>Home</Text>
-      <EvilIcons name="camera" size={24} color="black" style={{ marginRight: 15 }} />
-      <Feather name="edit-2" size={20} color="black" />
-    </SafeAreaView>
-  )
-};

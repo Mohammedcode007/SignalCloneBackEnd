@@ -20,7 +20,7 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem }: ChatRoo
     const [user, setUser] = useState<User | null>(null); // the display user
     const [lastMessage, setLastMessage] = useState<Message | undefined>();
     const [isLoading, setIsLoading] = useState(true);
-console.log(lastMessage,"chatRoomDataItem");
+// console.log(lastMessage,"chatRoomDataItem");
 
     useEffect(() => {
       const fetchUsers = async () => {
