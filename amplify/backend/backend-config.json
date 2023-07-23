@@ -73,8 +73,42 @@
       "type": "manual"
     }
   },
+  "parameters": {
+    "AMPLIFY_function_TestPostConfirmation_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "TestPostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_function_TestPostConfirmation_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "TestPostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_appId": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_type": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    }
+  },
   "storage": {
-    "s3f8d5b0d8": {
+    "s37a7942bf": {
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "S3"

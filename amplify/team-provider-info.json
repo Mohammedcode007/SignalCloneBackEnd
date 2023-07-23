@@ -22,14 +22,17 @@
           "s3Key": "amplify-builds/TestPostConfirmation-7946335052716454786c-build.zip"
         }
       },
-      "api": {
-        "Test": {}
-      },
       "hosting": {
         "amplifyhosting": {
           "appId": "dli27luv5inxv",
           "type": "manual"
         }
+      },
+      "api": {
+        "Test": {}
+      },
+      "storage": {
+        "s37a7942bf": {}
       }
     }
   }

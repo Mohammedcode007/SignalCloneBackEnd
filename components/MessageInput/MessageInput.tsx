@@ -3,10 +3,12 @@ import { View, KeyboardAvoidingView, Platform, StyleSheet, TextInput, Pressable,
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { Feather, AntDesign } from '@expo/vector-icons';
-import { Auth, DataStore } from 'aws-amplify';
+import { Auth, DataStore,Storage } from 'aws-amplify';
 import { ChatRoom, LazyMessage, Message } from '../../src/models';
 import EmojiSelector from "react-native-emoji-selector";
 import * as ImagePicker from 'expo-image-picker';
+import uuid from 'uuid-random';
+
 const MessageInput = ({ chatRoom }) => {
     const [message, setmessage] = useState('')
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
@@ -83,14 +85,59 @@ const MessageInput = ({ chatRoom }) => {
         console.warn('on plus');
 
     }
-    const onPress = () => {
-        if (Message) {
-            sendMessage()
-        } else {
-            onPlusMessage()
-        }
+    const getBlob = async (uri: string) => {
+      const respone = await fetch(uri);
+      const blob = await respone.blob();
+      return blob;
+    };
+    const progressCallback = (progress) => {
+      setProgress(progress.loaded / progress.total);
+    };
+  
 
-    }
+    const sendImage = async () => {
+      if (!image) {
+        return;
+      }
+      const blob = await getBlob(image);
+      const { key } = await Storage.put(`${uuid()}.png`, blob, {
+        progressCallback,
+      });
+  
+      // send message
+      const user = await Auth.currentAuthenticatedUser();
+      const newMessage = await DataStore.save(
+        new Message({
+          content: message,
+          image: key,
+          userID: user.attributes.sub,
+          chatroomID: chatRoom.id,
+          // replyToMessageID: messageReplyTo?.id,
+        })
+      );
+  
+      updateLastMessage(newMessage);
+  
+      resetFields();
+    };
+    const resetFields = () => {
+      setmessage("");
+      setIsEmojiPickerOpen(false);
+      setImage(null);
+      setProgress(0);
+      // setSoundURI(null);
+      // removeMessageReplyTo();
+    };
+    const onPress = () => {
+      if (image) {
+        sendImage();
+      }  else if (message) {
+        sendMessage();
+      } else {
+        // onPlusClicked();
+      }
+    };
+  
    
     return (
         <KeyboardAvoidingView
