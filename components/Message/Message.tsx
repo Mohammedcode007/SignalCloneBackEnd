@@ -1,15 +1,16 @@
-import React,{useState,useEffect} from 'react';
-import { View, Text, StyleSheet,ActivityIndicator,useWindowDimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { User } from '../../src/models';
-import { Auth, DataStore } from 'aws-amplify';
+import { Auth, DataStore, Storage } from 'aws-amplify';
 import { S3Image } from "aws-amplify-react-native";
+import AudioPlayer from '../AudioPlayer/AudioPlayer';
 
 interface MessageProps {
   message: {
     user: {
       id: string;
     };
-    content:string
+    content: string
     // Add other properties of the message object if any
   };
 }
@@ -21,6 +22,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
   // const isMe = message.user.id === myID;
   const [user, setUser] = useState<User | undefined>();
   const [isMe, setIsMe] = useState<boolean | null>(null);
+  const [soundURI, setSoundURI] = useState<any>(null);
 
 
   const { width } = useWindowDimensions();
@@ -38,7 +40,11 @@ const Message: React.FC<MessageProps> = ({ message }) => {
     };
     checkIfMe();
   }, [user]);
-
+  useEffect(() => {
+    if (message.audio) {
+      Storage.get(message.audio).then(setSoundURI);
+    }
+  }, [message]);
 
   if (!user) {
     return <ActivityIndicator />;
@@ -52,17 +58,21 @@ const Message: React.FC<MessageProps> = ({ message }) => {
           marginLeft: isMe ? 'auto' : 10,
           marginRight: isMe ? 10 : 'auto',
         },
+        { width: soundURI ? "75%" : "auto" },
+
       ]}
     >
-       {message.image && (
-          <View style={{ marginBottom: message.content ? 10 : 0 }}>
-            <S3Image
-              imgKey={message.image}
-              style={{ width: width * 0.65, aspectRatio: 4 / 3 }}
-              resizeMode="contain"
-            />
-          </View>
-        )}
+      {message.image && (
+        <View style={{ marginBottom: message.content ? 10 : 0 }}>
+          <S3Image
+            imgKey={message.image}
+            style={{ width: width * 0.65, aspectRatio: 4 / 3 }}
+            resizeMode="contain"
+          />
+        </View>
+      )}
+      {soundURI && <AudioPlayer soundURI={soundURI} />}
+
       <Text style={{ color: isMe ? 'black' : 'white' }}>{message.content}</Text>
     </View>
   );

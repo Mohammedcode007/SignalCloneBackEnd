@@ -4,6 +4,7 @@ import { Text, View } from '../Themed';
 import { styles } from './styles';
 import { ChatRoomUser, User,ChatRoom, Message } from '../../src/models';
 import { Auth, DataStore } from 'aws-amplify';
+import moment from "moment";
 
 interface ChatRoomItemProps {
   chatRoomDataItem: {
@@ -51,6 +52,9 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem }: ChatRoo
         setLastMessage
       );
     }, []);
+
+    const time = moment(lastMessage?.createdAt).from(moment());
+
   return (
     <View style={styles.container}>
       <Image style={styles.image} source={{uri : user?.imageUri}} />
@@ -58,7 +62,7 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem }: ChatRoo
       <View style={styles.RightContainer}>
         <View style={styles.row}>
           <Text style={styles.name}>{user?.name}</Text>
-          <Text style={styles.text}>{lastMessage?.createdAt}</Text>
+          <Text style={styles.text}>{time}</Text>
         </View>
         <Text numberOfLines={1} style={styles.text}>{lastMessage?.content}</Text>
       </View>
