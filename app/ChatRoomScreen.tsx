@@ -82,10 +82,13 @@ const ChatRoomScreen = () => {
         data={messages}
         inverted
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <Message message={item} />}
+        renderItem={({ item }) => <Message message={item}   setAsMessageReply={() => setMessageReplyTo(item)}
+        />}
       />
       <MessageInput
         chatRoom={chatRoom}
+        messageReplyTo={messageReplyTo}
+        removeMessageReplyTo={() => setMessageReplyTo(null)}
 
       />
     </SafeAreaView>

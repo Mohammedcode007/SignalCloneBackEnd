@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, KeyboardAvoidingView, Platform, StyleSheet, TextInput, Pressable, Image } from 'react-native';
+import { View, KeyboardAvoidingView, Platform, StyleSheet, TextInput, Pressable, Image,Text } from 'react-native';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { Feather, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,8 +10,9 @@ import * as ImagePicker from 'expo-image-picker';
 import uuid from 'uuid-random';
 import { Audio, AVPlaybackStatus } from "expo-av";
 import AudioPlayer from "../AudioPlayer";
+import MessageComponent from "../Message";
 
-const MessageInput = ({ chatRoom }) => {
+const MessageInput = ({ chatRoom ,messageReplyTo,removeMessageReplyTo}) => {
   const [message, setmessage] = useState('');
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [image, setImage] = useState<string | null>(null);
@@ -66,7 +67,9 @@ const MessageInput = ({ chatRoom }) => {
     const newMessage = await DataStore.save(new Message({
       content: message,
       userID: authUser.attributes.sub,
-      chatroomID: chatRoom.id
+      chatroomID: chatRoom.id,
+      replyToMessageID: messageReplyTo?.id,
+
     }))
 
     updateLastMessage(newMessage)
@@ -88,6 +91,8 @@ const MessageInput = ({ chatRoom }) => {
     setImage(null);
     setProgress(0);
     setSoundURI(null);
+    removeMessageReplyTo();
+
 
   };
 
@@ -112,6 +117,8 @@ const MessageInput = ({ chatRoom }) => {
         image: key,
         userID: user.attributes.sub,
         chatroomID: chatRoom.id,
+        replyToMessageID: messageReplyTo?.id,
+
       })
     );
 
@@ -193,6 +200,10 @@ const startRecording = async () => {
         audio: key,
         userID: user.attributes.sub,
         chatroomID: chatRoom.id,
+        status: "SENT",
+        replyToMessageID: messageReplyTo?.id,
+
+
       })
     );
 
@@ -219,6 +230,30 @@ const startRecording = async () => {
       keyboardVerticalOffset={100}
       style={[styles.root, { height: isEmojiPickerOpen ? '50%' : 'auto' }]}
     >
+            {messageReplyTo && (
+        <View
+          style={{
+            backgroundColor: "#f2f2f2",
+            padding: 5,
+            flexDirection: "row",
+            alignSelf: "stretch",
+            justifyContent: "space-between",
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text>Reply to:</Text>
+            <MessageComponent message={messageReplyTo} />
+          </View>
+          <Pressable onPress={() => removeMessageReplyTo()}>
+            <AntDesign
+              name="close"
+              size={24}
+              color="black"
+              style={{ margin: 5 }}
+            />
+          </Pressable>
+        </View>
+      )}
       {image && (
         <View style={styles.sendImageContainer}>
           <Image
