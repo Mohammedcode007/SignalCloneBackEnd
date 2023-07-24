@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, useWindowDimensions,Pressable } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, useWindowDimensions, Pressable, Animated } from 'react-native';
 import { User } from '../../src/models';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { S3Image } from "aws-amplify-react-native";
@@ -7,6 +7,7 @@ import AudioPlayer from '../AudioPlayer/AudioPlayer';
 import { Ionicons } from "@expo/vector-icons";
 import { Message as MessageModel } from "../../src/models";
 import MessageReply from "../MessageReply";
+import { PanGestureHandler,State } from 'react-native-gesture-handler';
 
 interface MessageProps {
   message: {
@@ -42,6 +43,8 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
 
 
   const { width } = useWindowDimensions();
+  const panX = new Animated.Value(0);
+
   useEffect(() => {
     DataStore.query(User, message.userID).then(setUser);
   }, []);
@@ -104,23 +107,52 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   };
 
 
+  const handlePanGesture = Animated.event([{ nativeEvent: { translationX: panX } }], {
+    useNativeDriver: false,
+  });
+
+  const handleRelease = () => {
+    Animated.spring(panX, {
+      toValue: 0,
+      useNativeDriver: false,
+    }).start();
+  };
+
+
   if (!user) {
     return <ActivityIndicator />;
   }
   return (
-    <Pressable
-    onLongPress={setAsMessageReply}
-    style={[
-        styles.container,
-        {
-          backgroundColor: isMe ? grey : blue,
-          marginLeft: isMe ? 'auto' : 10,
-          marginRight: isMe ? 10 : 'auto',
-        },
-        { width: soundURI ? "75%" : "auto" },
 
-      ]}
+    <PanGestureHandler
+      onGestureEvent={handlePanGesture}
+      onHandlerStateChange={({ nativeEvent }) => {
+        if (nativeEvent.state === State.END) {
+          if (nativeEvent.translationX > 0) {
+            setAsMessageReply()
+            // السحب إلى اليمين
+            // اكتب الفعل الذي تريد تنفيذه عند السحب إلى اليمين هنا
+          } else {
+            setAsMessageReply()
+            // السحب إلى اليسار
+            // اكتب الفعل الذي تريد تنفيذه عند السحب إلى اليسار هنا
+          }
+          handleRelease();
+        }
+      }}
     >
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            backgroundColor: isMe ? grey : blue,
+            marginLeft: isMe ? 'auto' : 10,
+            marginRight: isMe ? 10 : 'auto',
+            transform: [{ translateX: panX }],
+          },
+          { width: soundURI ? "75%" : "auto" },
+        ]}
+      >
       {repliedTo && <MessageReply message={repliedTo} />}
 
       {message.image && (
@@ -146,7 +178,8 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
             style={{ marginHorizontal: 5 }}
           />
         )}
-    </Pressable>
+</Animated.View>
+    </PanGestureHandler>
   );
 };
 
