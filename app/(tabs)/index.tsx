@@ -43,7 +43,7 @@ export default function TabOneScreen() {
   const handleItemPress = (item) => {
     // Navigate to another screen with the selected item
     
-    navigation.navigate('ChatRoomScreen', { chatRoomDataItem: item.id });
+    navigation.navigate('ChatRoomScreen', { id: item.id });
   };
 
   return (

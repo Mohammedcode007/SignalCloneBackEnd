@@ -5,6 +5,7 @@ import { EvilIcons,Feather ,AntDesign  } from '@expo/vector-icons';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react-native';
 
 import Colors from '../../constants/Colors';
+import { DataStore } from 'aws-amplify';
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -54,7 +55,16 @@ export default function TabLayout() {
 
 const HomeHeader = () => {
   const { signOut } = useAuthenticator();
-
+  const handleSignOut = async () => {
+    try {
+      // Clear the DataStore cache and local storage
+      await DataStore.clear();
+    } catch (error) {
+      console.error('Error clearing DataStore:', error);
+    }
+    // Call the signOut function
+    signOut();
+  };
   const {width} = useWindowDimensions()
   return (
     <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',width:'100%'}}>
@@ -64,7 +74,7 @@ const HomeHeader = () => {
       <Text style={{flex:1,textAlign:'center',fontWeight:'bold'}}>Home</Text>
       <EvilIcons name="camera" size={24} color="black" style={{marginRight:15}} />
       <Feather name="edit-2" size={20} color="black" />
-      <Pressable onPress={signOut}>
+      <Pressable onPress={handleSignOut}>
       <AntDesign name="logout" size={17} color="black" style={{marginHorizontal:15}} />
 
       </Pressable>

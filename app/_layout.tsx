@@ -8,6 +8,7 @@ import ChatRoomScreen from './ChatRoomScreen';
 import { EvilIcons, Feather } from '@expo/vector-icons';
 import { Amplify,Auth,DataStore,Hub } from 'aws-amplify';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react-native';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 import awsconfig from '../src/aws-exports';
 import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
@@ -47,7 +48,11 @@ export default function RootLayout() {
       {loaded &&
       <Authenticator.Provider>
       <Authenticator loginMechanisms={['username']}>
+      <ActionSheetProvider>
+
       <RootLayoutNav />
+      </ActionSheetProvider>
+
       </Authenticator>
     </Authenticator.Provider>
      }
@@ -136,7 +141,9 @@ function RootLayoutNav() {
             headerShown: false,
             headerTitle: () => <ChatRoomHeader />,
           }} />
-
+<Stack.Screen name="GroupInfoScreen" options={{
+            headerShown: true,
+          }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

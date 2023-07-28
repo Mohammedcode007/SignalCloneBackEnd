@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, useWindowDimensions, Pressable, Animated } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, useWindowDimensions, Pressable, Animated,TouchableOpacity,Alert } from 'react-native';
 import { User } from '../../src/models';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { S3Image } from "aws-amplify-react-native";
@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Message as MessageModel } from "../../src/models";
 import MessageReply from "../MessageReply";
 import { PanGestureHandler,State } from 'react-native-gesture-handler';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 interface MessageProps {
   message: {
@@ -33,8 +34,54 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   const [repliedTo, setRepliedTo] = useState<MessageModel | undefined>(
     undefined
   );
+  const [isDeleted, setIsDeleted] = useState(false);
 
-  
+  const { showActionSheetWithOptions } = useActionSheet();
+  const deleteMessage = async () => {
+    await DataStore.delete(message);
+  };
+
+  const confirmDelete = () => {
+    Alert.alert(
+      "Confirm delete",
+      "Are you sure you want to delete the message?",
+      [
+        {
+          text: "Delete",
+          onPress: deleteMessage,
+          style: "destructive",
+        },
+        {
+          text: "Cancel",
+        },
+      ]
+    );
+  };
+
+  const onActionPress = (index) => {
+    if (index === 0) {
+      setAsMessageReply();
+    } else if (index === 1) {
+      if (isMe) {
+        confirmDelete();
+      } else {
+        Alert.alert("Can't perform action", "This is not your message");
+      }
+    }
+  };
+  const openActionMenu = () => {
+    const options = ["Reply", "Delete", "Cancel"];
+    const destructiveButtonIndex = 1;
+    const cancelButtonIndex = 2;
+    showActionSheetWithOptions(
+      {
+        options,
+        destructiveButtonIndex,
+        cancelButtonIndex,
+      },
+      onActionPress
+    );
+  };
   const [message, setMessage] = useState<MessageModel>(propMessage);
 
   const [user, setUser] = useState<User | undefined>();
@@ -61,20 +108,36 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   }, [message]);
 
 
+  // useEffect(() => {
+  //   const subscription = DataStore.observe(MessageModel, message?.id).subscribe(
+  //     (msg) => {
+  //       if (msg.model === MessageModel) {
+  //         if (msg.opType === "UPDATE" && msg.element) {
+  //           setMessage((prevMessage) => ({ ...prevMessage, ...msg.element }));
+  //         } 
+  //       }
+  //     }
+  //   );
+  
+  //   return () => subscription.unsubscribe();
+  // }, []);
+
+
   useEffect(() => {
     const subscription = DataStore.observe(MessageModel, message.id).subscribe(
       (msg) => {
         if (msg.model === MessageModel) {
-          if (msg.opType === "UPDATE" && msg.element) {
+          if (msg.opType === "UPDATE") {
             setMessage((prevMessage) => ({ ...prevMessage, ...msg.element }));
-          } 
+          } else if (msg.opType === "DELETE") {
+            setIsDeleted(true);
+          }
         }
       }
     );
-  
+
     return () => subscription.unsubscribe();
   }, []);
-
   
   
   useEffect(() => {
@@ -86,7 +149,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
         return;
       }
       const authUser = await Auth.currentAuthenticatedUser();
-      setIsMe(user.id === authUser.attributes.sub);
+      setIsMe(user?.id === authUser.attributes.sub);
     };
     checkIfMe();
   }, [user]);
@@ -142,6 +205,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
       }}
     >
       <Animated.View
+      
         style={[
           styles.container,
           {
@@ -153,31 +217,38 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
           { width: soundURI ? "75%" : "auto" },
         ]}
       >
+        <TouchableOpacity onPress={openActionMenu}>
+          
       {repliedTo && <MessageReply message={repliedTo} />}
 
-      {message.image && (
-        <View style={{ marginBottom: message.content ? 10 : 0 }}>
-          <S3Image
-            imgKey={message.image}
-            style={{ width: width * 0.65, aspectRatio: 4 / 3 }}
-            resizeMode="contain"
-          />
-        </View>
-      )}
-      {soundURI && <AudioPlayer soundURI={soundURI} />}
+{message.image && (
+  <View style={{ marginBottom: message.content ? 10 : 0 }}>
+    <S3Image
+      imgKey={message.image}
+      style={{ width: width * 0.65, aspectRatio: 4 / 3 }}
+      resizeMode="contain"
+    />
+  </View>
+)}
+{soundURI && <AudioPlayer soundURI={soundURI} />}
 
-      <Text style={{ color: isMe ? 'black' : 'white' }}>{message.content}</Text>
-     
-      {isMe && !!message.status && message.status !== "SENT" && (
-          <Ionicons
-            name={
-              message.status === "DELIVERED" ? "checkmark" : "checkmark-done"
-            }
-            size={16}
-            color="gray"
-            style={{ marginHorizontal: 5 }}
-          />
-        )}
+<Text style={{ color: isMe ? 'black' : 'white' }}>
+{isDeleted ? "message deleted" : message.content}
+
+  
+  </Text>
+
+{isMe && !!message.status && message.status !== "SENT" && (
+    <Ionicons
+      name={
+        message.status === "DELIVERED" ? "checkmark" : "checkmark-done"
+      }
+      size={16}
+      color="gray"
+      style={{ marginHorizontal: 5 }}
+    />
+  )}
+        </TouchableOpacity>
 </Animated.View>
     </PanGestureHandler>
   );

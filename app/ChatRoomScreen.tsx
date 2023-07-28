@@ -39,11 +39,11 @@ const ChatRoomScreen = () => {
   }, []);
 
   const fetchChatRoom = async () => {
-    if (!route.params?.chatRoomDataItem) {
+    if (!route.params?.id) {
       console.warn("No chatroom id provided");
       return;
     }
-    const chatRoom = await DataStore.query(ChatRoom, route.params.chatRoomDataItem);
+    const chatRoom = await DataStore.query(ChatRoom, route.params.id);
     if (!chatRoom) {
       console.error("Couldn't find a chat room with this id");
     } else {
@@ -76,7 +76,7 @@ const ChatRoomScreen = () => {
   return (
     <SafeAreaView style={styles.page}>
       <View style={{height:100,width:'100%',marginTop:'10%'}}>
-<ChatRoomHeader id={route.params?.chatRoomDataItem}/>
+<ChatRoomHeader id={route.params?.id}/>
       </View>
       <FlatList
         data={messages}

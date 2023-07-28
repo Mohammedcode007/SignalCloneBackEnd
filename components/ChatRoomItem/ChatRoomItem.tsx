@@ -45,10 +45,10 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem }: ChatRoo
     }, []);
 
     useEffect(() => {
-      if (!chatRoomDataItem.chatRoomLastMessageId) {
+      if (!chatRoomDataItem?.chatRoomLastMessageId) {
         return;
       }
-      DataStore.query(Message, chatRoomDataItem.chatRoomLastMessageId).then(
+      DataStore.query(Message, chatRoomDataItem?.chatRoomLastMessageId).then(
         setLastMessage
       );
     }, []);
@@ -57,11 +57,12 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem }: ChatRoo
 
   return (
     <View style={styles.container}>
-      <Image style={styles.image} source={{uri : user?.imageUri}} />
-      {chatRoomDataItem.newMessages > 0 ? <View style={styles.badgeContainer}><Text style={styles.badgeText}>{chatRoomDataItem?.newMessages}</Text></View> : null}
+      <Image style={styles.image}         source={{ uri: chatRoomDataItem?.imageUri || user?.imageUri }}
+/>
+      {chatRoomDataItem?.newMessages > 0 ? <View style={styles.badgeContainer}><Text style={styles.badgeText}>{chatRoomDataItem?.newMessages}</Text></View> : null}
       <View style={styles.RightContainer}>
         <View style={styles.row}>
-          <Text style={styles.name}>{user?.name}</Text>
+        <Text style={styles.name}>{chatRoomDataItem.name || user?.name}</Text>
           <Text style={styles.text}>{time}</Text>
         </View>
         <Text numberOfLines={1} style={styles.text}>{lastMessage?.content}</Text>
