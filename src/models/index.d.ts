@@ -63,6 +63,7 @@ type EagerChatRoom = {
   readonly name?: string | null;
   readonly imageUri?: string | null;
   readonly Admin?: User | null;
+  readonly isRoom?: boolean | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly chatRoomLastMessageId?: string | null;
@@ -82,6 +83,7 @@ type LazyChatRoom = {
   readonly name?: string | null;
   readonly imageUri?: string | null;
   readonly Admin: AsyncItem<User | undefined>;
+  readonly isRoom?: boolean | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly chatRoomLastMessageId?: string | null;

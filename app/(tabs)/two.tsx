@@ -84,6 +84,7 @@ export default function TabTwoScreen({route}) {
     console.log(newChatRoomData,"chatroom");
 
     const newChatRoom = await DataStore.save(new ChatRoom(newChatRoomData));
+console.log(newChatRoom);
 
 
     if (dbUser) {

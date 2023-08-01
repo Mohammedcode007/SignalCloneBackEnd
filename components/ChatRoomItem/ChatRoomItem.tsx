@@ -62,7 +62,7 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem }: ChatRoo
       {chatRoomDataItem?.newMessages > 0 ? <View style={styles.badgeContainer}><Text style={styles.badgeText}>{chatRoomDataItem?.newMessages}</Text></View> : null}
       <View style={styles.RightContainer}>
         <View style={styles.row}>
-        <Text style={styles.name}>{chatRoomDataItem.name || user?.name}</Text>
+        <Text style={styles.name}>{chatRoomDataItem?.name || user?.name}</Text>
           <Text style={styles.text}>{time}</Text>
         </View>
         <Text numberOfLines={1} style={styles.text}>{lastMessage?.content}</Text>

@@ -9,10 +9,12 @@ import { EvilIcons, Feather } from '@expo/vector-icons';
 import { Amplify,Auth,DataStore,Hub } from 'aws-amplify';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { Provider } from 'react-redux';
 
 import awsconfig from '../src/aws-exports';
 import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
 import { Message, User } from '../src/models';
+import store from '../store';
 
 Amplify.configure(awsconfig);
 export {
@@ -49,8 +51,11 @@ export default function RootLayout() {
       <Authenticator.Provider>
       <Authenticator loginMechanisms={['username']}>
       <ActionSheetProvider>
+      <Provider store={store}>
 
       <RootLayoutNav />
+      </Provider>
+
       </ActionSheetProvider>
 
       </Authenticator>

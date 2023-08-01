@@ -220,6 +220,13 @@ export const schema = {
                         ]
                     }
                 },
+                "isRoom": {
+                    "name": "isRoom",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -499,5 +506,5 @@ export const schema = {
     },
     "nonModels": {},
     "codegenVersion": "3.3.6",
-    "version": "09385da20dcfce797019e96260eca383"
+    "version": "0fa0fc844a59e5f1ada5bb5a2e7fd1e7"
 };

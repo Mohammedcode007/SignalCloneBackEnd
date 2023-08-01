@@ -1,15 +1,14 @@
 import { useRoute } from "@react-navigation/native";
 import { DataStore, Auth } from "aws-amplify";
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert, Pressable } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { ChatRoom, ChatRoomUser, User,  } from "../src/models";
+import { ChatRoom, ChatRoomUser, Message, User,  } from "../src/models";
 import UserItem from "../components/UserItem/UserItem";
 
 const GroupInfoScreen = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
   const [allUsers, setAllUsers] = useState<User[]>([]);
-console.log(chatRoom,"chatRoom");
 
   const route = useRoute();
 
@@ -81,11 +80,13 @@ console.log(chatRoom,"chatRoom");
         const chatRoomUserToDelete = await (
       await DataStore.query(ChatRoomUser)
     ).filter(
-      (cru) => cru.chatRoomId === chatRoom?.id && cru.userId === user?.id
+      (cru) => cru.chatRoomId === chatRoom?.id && cru?.userId === user?.id
     );
 
       if (chatRoomUserToDelete.length > 0) {
-        await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0].id);
+        console.log(chatRoomUserToDelete[0]);
+        
+        await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
         setAllUsers(allUsers.filter((u) => u?.id !== user?.id));
 
         console.log("تم حذف المستخدم بنجاح من غرفة الدردشة");
@@ -100,7 +101,42 @@ console.log(chatRoom,"chatRoom");
   };
   
   
+const LeaveRoom = async ()=>{
+  try {
+    
+    
+  const authUser = await Auth.currentAuthenticatedUser();
+  const loggedInUserId = authUser.attributes.sub;
+  const dbUser = await DataStore.query(User, loggedInUserId);
 
+  if (!dbUser) {
+    Alert.alert("There was an error leaving the group");
+    return;
+  }
+
+  if (dbUser) {
+    const chatRoomUserToDelete = await (
+      await DataStore.query(ChatRoomUser)
+    ).filter(
+      (cru) => cru.chatRoomId === chatRoom?.id && cru?.userId === dbUser?.id
+    );
+
+      if (chatRoomUserToDelete.length > 0) {
+             
+   // احصل على جميع الرسائل المرتبطة بالغرفة
+   const messagesToDelete = (await DataStore.query(Message)).filter(
+    (m) => m.chatroomID === chatRoom?.id && m?.userID === dbUser?.id
+  );
+console.log(messagesToDelete,"messagesToDelete");
+
+        await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
+        setAllUsers(allUsers.filter((u) => u?.id !== dbUser?.id));
+
+   }}
+  } catch (error) {
+    
+  }
+}
   // const deleteUser = async (user) => {
   //   const chatRoomUsersToDelete1 = await (
   //     await DataStore.query(ChatRoomUser)
@@ -129,6 +165,12 @@ console.log(chatRoom,"chatRoom");
       <Text style={styles.title}>{chatRoom?.name}</Text>
 
       <Text style={styles.title}>Users ({allUsers.length})</Text>
+      <Pressable onPress={LeaveRoom}>
+      <Text>
+        Leave Room
+      </Text>
+      </Pressable>
+      
       <FlatList
         data={allUsers}
         keyExtractor={(item,index) => `user-${index}`} // تحديد مفتاح فريد باستخدام اسم النموذج ومعرّف المستخدم
