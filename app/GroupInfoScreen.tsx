@@ -5,12 +5,15 @@ import { View, Text, StyleSheet, Alert, Pressable } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { ChatRoom, ChatRoomUser, Message, User,  } from "../src/models";
 import UserItem from "../components/UserItem/UserItem";
+import {  Message as MessageModel } from "../src/models";
+import { useDispatch } from "react-redux";
+import { addToActive, setexitMessageContent } from '../redux/mainSlice';
 
 const GroupInfoScreen = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
   const [allUsers, setAllUsers] = useState<User[]>([]);
-
   const route = useRoute();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchChatRoom();
@@ -127,16 +130,48 @@ const LeaveRoom = async ()=>{
    const messagesToDelete = (await DataStore.query(Message)).filter(
     (m) => m.chatroomID === chatRoom?.id && m?.userID === dbUser?.id
   );
-console.log(messagesToDelete,"messagesToDelete");
 
-        await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
+    const leaving =     await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
         setAllUsers(allUsers.filter((u) => u?.id !== dbUser?.id));
+        if(leaving){
+          sendExitMessage();
 
+        }
    }}
+
+  
   } catch (error) {
     
   }
 }
+
+
+const sendExitMessage = async () => {
+  if (!chatRoom) {
+    return;
+  }
+
+  // احصل على معلومات المستخدم المصادق عليه
+  const authUser = await Auth.currentAuthenticatedUser();
+  const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+  // أنشئ محتوى رسالة الخروج
+if(dbUser){
+
+  const exitMessage = await DataStore.save(
+    new MessageModel({
+      content: `${dbUser.name} قد غادر الغرفة.`,
+      userID: 'd7e9f25c-eaf8-42ad-bebe-b2a4ea2e5e4d',
+      chatroomID: chatRoom.id,
+    })
+  );
+  dispatch(setexitMessageContent(exitMessage))
+
+}
+
+};
+
+
   // const deleteUser = async (user) => {
   //   const chatRoomUsersToDelete1 = await (
   //     await DataStore.query(ChatRoomUser)

@@ -7,10 +7,12 @@ import ChatRoomItem from '../../components/ChatRoomItem';
 import chatRoomDummy from "../../assets/dummy-data/ChatRooms"
 import { Auth, DataStore } from 'aws-amplify';
 import { ChatRoom, ChatRoomUser, User } from '../../src/models';
-import { addToActive, setTime } from '../../redux/mainSlice';
-import { useDispatch } from 'react-redux';
+import { addToActive, setjoin } from '../../redux/mainSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Rooms = () => {
+  const {rooms,join} = useSelector((state) => state.mainReducer);
+
   const chatRoomData = chatRoomDummy;
   const navigation = useNavigation();
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
@@ -71,11 +73,9 @@ const Rooms = () => {
         return;
       }
       if (dbUser && ItemcRoom) {
+    
         await addUserToChatRoom(dbUser, ItemcRoom);
-        const userEnteredAt = new Date(); // تاريخ دخول المستخدم للغرفة (الوقت الحالي)
-
-        dispatch(setTime(userEnteredAt));
-
+        
 
       }
     }
@@ -84,24 +84,41 @@ const Rooms = () => {
   }, [allUsers]);
 
   const addUserToChatRoom = async (dbUser, ItemcRoom) => {
+    // const checkjoin = join?.filter((item)=>{return(
+    //   item?.chatRoomId === ItemcRoom?.id
+    // )})
+    // console.log(checkjoin,"checkjoin");
     
+    // if(checkjoin === false){
+    //   dispatch(setjoin({
+    //     At: new Date(),
+    //     UserId :dbUser?.id,
+    //     chatRoomId:ItemcRoom?.id,
+    //   }));
+    // }
 
     const isUserInside = allUsers?.filter((user) => { return (user === dbUser?.id) })
 
+console.log(isUserInside,"isUserInside");
 
     if (isUserInside.length > 0) {
+   
       navigation.navigate('ChatRoomScreen', { id: ItemcRoom.id });
 
     } else {
       if (dbUser) {
-        await DataStore.save(new ChatRoomUser({
+    const savedata=    await DataStore.save(new ChatRoomUser({
           user: dbUser,
-          chatRoom: ItemcRoom
+          chatRoom: ItemcRoom,
+
         }));
+        if(savedata){
+          navigation.navigate('ChatRoomScreen', { id: ItemcRoom.id });
+
+        }
 
       }
 
-      navigation.navigate('ChatRoomScreen', { id: ItemcRoom.id });
 
     }
 

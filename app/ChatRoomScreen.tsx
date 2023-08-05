@@ -8,10 +8,13 @@ import { DataStore } from "@aws-amplify/datastore";
 import { ChatRoom, ChatRoomUser, Message as MessageModel, User } from "../src/models";
 import { Auth, SortDirection } from 'aws-amplify';
 import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToActive } from '../redux/mainSlice';
 
 const ChatRoomScreen = () => {
+  const {exitMessageContent} = useSelector((state) => state.mainReducer);
+console.log(exitMessageContent,"exitMessageContent");
+
   const [messages, setMessages] = useState<MessageModel[]>([]);
   const [messageReplyTo, setMessageReplyTo] = useState<MessageModel | null>(
     null
@@ -19,19 +22,23 @@ const ChatRoomScreen = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
   const [entryTime, setEntryTime] = useState<Date | null>(null);
   const [entryTimeSet, setEntryTimeSet] = useState(false);
-  console.log(entryTime,"entryTime");
+  const [targetTime, settargetTime] = useState();
+  const route = useRoute();
+
   
+
   useEffect(() => {
-    if (!entryTimeSet) {
+    if(route.params?.id){
       setEntryTime(new Date());
       setEntryTimeSet(true);
     }
-  }, [entryTimeSet]);
+      
+    
+  }, [route.params?.id]);
   
   
   const dispatch = useDispatch();
 
-  const route = useRoute();
   const navigation = useNavigation();
   
 
@@ -49,7 +56,7 @@ const ChatRoomScreen = () => {
       fetchMessages()
 
     )
-  }, [chatRoom,time]);
+  }, [chatRoom]);
 
   useEffect(() => {
     const subscription = DataStore.observe(MessageModel).subscribe((msg) => {
@@ -69,7 +76,6 @@ const ChatRoomScreen = () => {
       return;
     }
     const chatRoom = await DataStore.query(ChatRoom, route.params.id);
-    console.log(chatRoom, "chatRoom");
 
     if (!chatRoom) {
       console.error("Couldn't find a chat room with this id");
@@ -84,18 +90,55 @@ const ChatRoomScreen = () => {
     if (!chatRoom || !entryTime) {
       return;
     }
-  
+   const chatroomuser = await DataStore.query(ChatRoomUser)
+console.log(chatroomuser,"chatroomuser");
+
+const ChatRoomIdFilter = chatroomuser.filter((item)=>{return(
+  item?.chatRoomId === chatRoom?.id
+)})
+
+
+const authUser = await Auth.currentAuthenticatedUser();
+      const loggedInUserId = authUser.attributes.sub;
+      const dbUser = await DataStore.query(User, loggedInUserId);
+      const userIdFilter = ChatRoomIdFilter?.filter((item) => {
+        return item?.userId === dbUser?.id;
+      })[0];
+
+      console.log(userIdFilter?.createdAt,"userIdFilter");
+      console.log(userIdFilter,"userIdFilter");
+
     // استعلام الرسائل التي تم استلامها بعد دخول المستخدم للغرفة
     const fetchedMessages = await DataStore.query(
       MessageModel,
       (message) =>
-        message.chatroomID.eq(chatRoom?.id).createdAt('gt', entryTime),
+      message.chatroomID.eq(chatRoom?.id),
       {
         sort: (message) => message.createdAt(SortDirection.DESCENDING),
       }
     );
+
+
+    const filterMessagesAfterTime = (messages, userIdFilter) => {
+      
+      return messages.filter((message) => message.createdAt > userIdFilter.createdAt);
+    };
+
   
-    setMessages(fetchedMessages);
+    
+  
+    
+
+    if(userIdFilter){
+      const filteredMessages = filterMessagesAfterTime(fetchedMessages, userIdFilter);
+      setMessages(filteredMessages);
+
+      console.log(filteredMessages,"filteredMessages");
+    }
+    // استدعاء الدالة وتمرير قائمة الرسائل والوقت المستهدف
+    
+    
+  
   };
   
   

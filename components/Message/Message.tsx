@@ -186,8 +186,14 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
     return <ActivityIndicator />;
   }
   return (
-
-    <PanGestureHandler
+    <View style={{flex:1}}>
+          {
+          message?.userID === 'd7e9f25c-eaf8-42ad-bebe-b2a4ea2e5e4d' ? (
+            <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
+              <Text>{message?.content}</Text>
+            </View>
+          ):(
+            <PanGestureHandler
       onGestureEvent={handlePanGesture}
       onHandlerStateChange={({ nativeEvent }) => {
         if (nativeEvent.state === State.END) {
@@ -217,6 +223,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
           { width: soundURI ? "75%" : "auto" },
         ]}
       >
+    
         <TouchableOpacity onPress={openActionMenu}>
           
       {repliedTo && <MessageReply message={repliedTo} />}
@@ -251,6 +258,12 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
         </TouchableOpacity>
 </Animated.View>
     </PanGestureHandler>
+          )
+        }
+
+    </View>
+
+    
   );
 };
 

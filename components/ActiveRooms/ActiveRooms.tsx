@@ -10,7 +10,7 @@ import { ChatRoom, ChatRoomUser, User } from '../../src/models';
 import { useSelector } from 'react-redux';
 
 const ActiveRooms = () => {
-    const {rooms,time} = useSelector((state) => state.mainReducer);
+    const {rooms} = useSelector((state) => state.mainReducer);
     const [data,setdata] = useState([])
     
     useEffect(()=>{
@@ -81,7 +81,7 @@ const ActiveRooms = () => {
     //     await addUserToChatRoom(dbUser, item);
     //   }
   
-      navigation.navigate('ChatRoomScreen', { id: item.id ,time:time.toISOString()});
+      navigation.navigate('ChatRoomScreen', { id: item.id});
     };
   
     return (

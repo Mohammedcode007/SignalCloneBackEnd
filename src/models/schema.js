@@ -457,6 +457,7 @@ export const schema = {
                     "attributes": [],
                     "isReadOnly": true
                 },
+              
                 "updatedAt": {
                     "name": "updatedAt",
                     "isArray": false,

@@ -4,7 +4,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   rooms: [],
-  time:''
+  join:[],
+  exitMessageContent:''
 };
 
 const mainSlice = createSlice({
@@ -14,11 +15,14 @@ const mainSlice = createSlice({
     addToActive: (state, action) => {
       state.rooms.push(action.payload);
     },
-    setTime: (state, action) => {
-      state.time=action.payload;
+    setjoin: (state, action) => {
+      state.join.push(action.payload);
+    },
+    setexitMessageContent: (state, action) => {
+      state.exitMessageContent=action.payload;
     },
   },
 });
 
-export const { addToActive,setTime } = mainSlice.actions;
+export const { addToActive,setjoin,setexitMessageContent } = mainSlice.actions;
 export default mainSlice.reducer;
