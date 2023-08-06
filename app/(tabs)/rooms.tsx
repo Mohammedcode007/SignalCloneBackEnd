@@ -4,6 +4,8 @@ import { TabView, SceneMap } from 'react-native-tab-view';
 import Rooms from '../../components/Rooms/Rooms';
 import ActiveRooms from '../../components/ActiveRooms/ActiveRooms';
 import { ChatRoom } from '../../src/models';
+import SignUpScreen from '../../components/Fav/Fav';
+import PublicTab from '../../components/tabComponent/PublicTab';
 
 
 const rooms = () => {
@@ -22,7 +24,7 @@ const rooms = () => {
   );
   
   const Favorite = () => (
-    <View style={{ flex: 1, backgroundColor: '#673ab7' }} />
+    <SignUpScreen />
   );
   
   const renderScene = SceneMap({
@@ -40,6 +42,8 @@ const rooms = () => {
      <TabView
       navigationState={{ index, routes }}
       renderScene={renderScene}
+      renderTabBar={PublicTab} // استدعاء دالة تخصيص علامات التبويب
+
       onIndexChange={setIndex}
       initialLayout={{ width: layout.width }}
     />

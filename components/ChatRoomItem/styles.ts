@@ -4,6 +4,8 @@ export const styles = StyleSheet.create({
     container: {
       flexDirection: 'row',
       padding: 10,
+      borderBottomWidth:0.5,
+      borderBottomColor:'grey',
     },
     RightContainer: {
       flex:1,
@@ -47,4 +49,27 @@ export const styles = StyleSheet.create({
       fontSize:12,
   
     },
+    textimg:{
+      fontSize:15,
+      color:'white'
+    },
+    circlenum:{
+      height: 25,
+      alignItems:'center',
+      display:'flex',
+      justifyContent:'center',
+      width: 25,
+      borderRadius: 25,
+      marginRight: 10,
+    },
+
+    circle:{
+      height: 50,
+      alignItems:'center',
+      display:'flex',
+      justifyContent:'center',
+      width: 50,
+      borderRadius: 25,
+      marginRight: 10,
+    }
   });

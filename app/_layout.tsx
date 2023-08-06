@@ -141,14 +141,18 @@ function RootLayoutNav() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
 
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false 
+ }}
+           />
           <Stack.Screen name="ChatRoomScreen" options={{
             headerShown: false,
             headerTitle: () => <ChatRoomHeader />,
           }} />
 <Stack.Screen name="GroupInfoScreen" options={{
             headerShown: true,
+
           }} />
+       
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

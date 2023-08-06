@@ -41,7 +41,7 @@ const GroupInfoScreen = () => {
 
 
   const UserDetails = await Promise.all(fetchedUsersId.map(async (fetchedUser) => await DataStore.query(User, fetchedUser)));
-  // console.log(UserDetails, "555555555555555555555555");
+  console.log(UserDetails, "555555555555555555555555");
   // setUsers(UserDetails);
   setAllUsers(UserDetails);
   };

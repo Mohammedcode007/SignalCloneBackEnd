@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import EditScreenInfo from '../../components/EditScreenInfo';
 import { Text, View } from '../../components/Themed';
 import ChatRoomItem from '../../components/ChatRoomItem';
+import { RefreshControl } from 'react-native';
+
 import chatRoomDummy from "../../assets/dummy-data/ChatRooms"
 import { Auth, DataStore } from 'aws-amplify';
 import { ChatRoom, ChatRoomUser, User } from '../../src/models';
@@ -17,6 +19,7 @@ const Rooms = () => {
   const navigation = useNavigation();
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
   const [ItemcRoom, setItemcRoom] = useState(null);
+  const [item, setitem] = useState();
 
   const dispatch = useDispatch();
 
@@ -47,7 +50,7 @@ const Rooms = () => {
   const fetchUsers = async (ItemcRoom) => {
 
     const fetchedUsersId = (await DataStore.query(ChatRoomUser))
-      .filter((chatRoomUser) => chatRoomUser.chatRoomId === ItemcRoom.id)
+      .filter((chatRoomUser) => chatRoomUser.chatRoomId === ItemcRoom?.id)
       .map((chatRoomUser) => chatRoomUser.userId);
 
 
@@ -139,8 +142,9 @@ console.log(isUserInside,"isUserInside");
     //   Alert.alert("There was an error creating the group");
     //   return;
     // }
-    fetchUsers(item)
+    setitem(item)
 
+    fetchUsers(item)
 // setTimeout(async()=>{
 //   if (dbUser) {
 //     await addUserToChatRoom(dbUser, item);
@@ -150,19 +154,34 @@ console.log(isUserInside,"isUserInside");
 
     // navigation.navigate('ChatRoomScreen', { id: item.id });
   };
+  const [refreshing, setRefreshing] = useState(false);
+
+const onRefresh = async () => {
+  setRefreshing(true);
+  // قم بجلب البيانات أو أداء أي مهام تحديث هنا
+  await fetchChatRoom();
+  await  fetchUsers(ItemcRoom)
+
+  setRefreshing(false);
+};
+
 
   return (
     <View style={styles.page}>
       <FlatList
         data={chatRoom}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
+        renderItem={({ item,index }) => (
           <TouchableOpacity onPress={() => handleItemPress(item)}>
-            <ChatRoomItem chatRoomDataItem={item} />
+            <ChatRoomItem chatRoomDataItem={item} index={index} />
           </TouchableOpacity>
         )}
         showsHorizontalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
+
     </View>
   );
 }
