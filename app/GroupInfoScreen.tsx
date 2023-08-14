@@ -7,7 +7,7 @@ import { ChatRoom, ChatRoomUser, Message, User,  } from "../src/models";
 import UserItem from "../components/UserItem/UserItem";
 import {  Message as MessageModel } from "../src/models";
 import { useDispatch } from "react-redux";
-import { addToActive, setexitMessageContent } from '../redux/mainSlice';
+import {  setexitMessageContent } from '../redux/mainSlice';
 
 const GroupInfoScreen = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
@@ -47,7 +47,7 @@ const GroupInfoScreen = () => {
   };
 
   const confirmDelete = async (user) => {
-    console.log(user,"user");
+    // console.log(user,"user");
     
     // check if Auth user is admin of this group
     const authData = await Auth.currentAuthenticatedUser();
@@ -87,7 +87,6 @@ const GroupInfoScreen = () => {
     );
 
       if (chatRoomUserToDelete.length > 0) {
-        console.log(chatRoomUserToDelete[0]);
         
         await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
         setAllUsers(allUsers.filter((u) => u?.id !== user?.id));
@@ -161,7 +160,7 @@ if(dbUser){
   const exitMessage = await DataStore.save(
     new MessageModel({
       content: `${dbUser.name} قد غادر الغرفة.`,
-      userID: 'd7e9f25c-eaf8-42ad-bebe-b2a4ea2e5e4d',
+      userID: '90ccf9ec-4021-700a-1e8e-3523a0692654',
       chatroomID: chatRoom.id,
     })
   );

@@ -1,35 +1,32 @@
 {
   "staging": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-test-staging-171813-authRole",
-      "UnauthRoleArn": "arn:aws:iam::408387088770:role/amplify-test-staging-171813-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::408387088770:role/amplify-test-staging-171813-authRole",
+      "AuthRoleName": "amplify-chatplus-staging-161939-authRole",
+      "UnauthRoleArn": "arn:aws:iam::408387088770:role/amplify-chatplus-staging-161939-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::408387088770:role/amplify-chatplus-staging-161939-authRole",
       "Region": "eu-north-1",
-      "DeploymentBucketName": "amplify-test-staging-171813-deployment",
-      "UnauthRoleName": "amplify-test-staging-171813-unauthRole",
-      "StackName": "amplify-test-staging-171813",
-      "StackId": "arn:aws:cloudformation:eu-north-1:408387088770:stack/amplify-test-staging-171813/6a7b7e60-226a-11ee-9455-0e0aa97efe26",
-      "AmplifyAppId": "dli27luv5inxv",
-      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-test-staging-171813-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+      "DeploymentBucketName": "amplify-chatplus-staging-161939-deployment",
+      "UnauthRoleName": "amplify-chatplus-staging-161939-unauthRole",
+      "StackName": "amplify-chatplus-staging-161939",
+      "StackId": "arn:aws:cloudformation:eu-north-1:408387088770:stack/amplify-chatplus-staging-161939/35628e80-353e-11ee-be1e-0ef171ab32a8",
+      "AmplifyAppId": "d1l6ha31vtlqfh",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-chatplus-staging-161939-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
-        "Test": {}
+        "chatplus": {}
       },
       "function": {
-        "TestPostConfirmation": {
-          "deploymentBucketName": "amplify-test-staging-171813-deployment",
-          "s3Key": "amplify-builds/TestPostConfirmation-7946335052716454786c-build.zip"
+        "chatplusPostConfirmation": {
+          "deploymentBucketName": "amplify-chatplus-staging-161939-deployment",
+          "s3Key": "amplify-builds/chatplusPostConfirmation-497236412b6c716a3150-build.zip"
         }
       },
-      "hosting": {
-        "amplifyhosting": {
-          "appId": "dli27luv5inxv",
-          "type": "manual"
-        }
+      "api": {
+        "chatplus": {}
       },
       "storage": {
-        "s37a7942bf": {}
+        "s3e0847696": {}
       }
     }
   }

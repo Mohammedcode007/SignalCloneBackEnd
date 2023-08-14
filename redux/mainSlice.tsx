@@ -15,6 +15,10 @@ const mainSlice = createSlice({
     addToActive: (state, action) => {
       state.rooms.push(action.payload);
     },
+    removeFromActive: (state, action) => {
+      const roomIdToRemove = action.payload;
+      state.rooms = state.rooms.filter(room => room.id !== roomIdToRemove);
+    },
     setjoin: (state, action) => {
       state.join.push(action.payload);
     },
@@ -24,5 +28,5 @@ const mainSlice = createSlice({
   },
 });
 
-export const { addToActive,setjoin,setexitMessageContent } = mainSlice.actions;
+export const { addToActive,setjoin,setexitMessageContent,removeFromActive } = mainSlice.actions;
 export default mainSlice.reducer;

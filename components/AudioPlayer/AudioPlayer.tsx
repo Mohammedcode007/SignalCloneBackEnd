@@ -79,7 +79,8 @@ const AudioPlayer = ({ soundURI }) => {
 
 const styles = StyleSheet.create({
   sendAudioContainer: {
-    marginVertical: 10,
+    width:'75%',
+    marginVertical: 0,
     padding: 10,
     flexDirection: "row",
     justifyContent: "space-between",

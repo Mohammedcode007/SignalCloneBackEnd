@@ -1,4 +1,4 @@
-const aws = require('@aws-sdk/client-dynamodb')
+const aws = require("aws-sdk");
 const ddb = new aws.DynamoDB();
 
 const tableName = process.env.USERTABLE;
@@ -11,7 +11,8 @@ exports.handler = async (event) => {
     console.log("No sub provided");
     return;
   }
-//j
+  
+
   const now = new Date();
   const timestamp = now.getTime();
 
@@ -22,7 +23,7 @@ exports.handler = async (event) => {
     createdAt: { S: now.toISOString() },
     updatedAt: { S: now.toISOString() },
     id: { S: event.request.userAttributes.sub },
-    name: { S: event.request.userAttributes.email },
+    name: { S: event.request.userAttributes.name  }, // Save "username" value as "name"
   }
   
   const params = {
@@ -32,7 +33,7 @@ exports.handler = async (event) => {
   
   // save a new user to DynamoDB
   try {
-    await ddb.putItem(params);
+    await ddb.putItem(params).promise();
     console.log("success");
   } catch (e) {
     console.log(e)

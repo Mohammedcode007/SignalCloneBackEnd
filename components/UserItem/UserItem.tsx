@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Pressable } from 'react-native';
 import { Text, View } from '../Themed';
 import { styles } from './styles';
 import { Auth, DataStore } from "aws-amplify";
-import { ChatRoom, User, ChatRoomUser } from "../../src/models";
+import { ChatRoom, User, ChatRoomUser, ChatRoomAdminship, ChatRoomMembership, ChatRoomOwnership } from "../../src/models";
 import { useNavigation } from '@react-navigation/native';
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 
 interface UserItemProps {
   oneUserItem: {
     imageUri: any;
     name: any;
+    id: any;
     // Add other properties of 'chatRoomDataItem' if any
 
   };
@@ -18,12 +19,16 @@ interface UserItemProps {
   onPress: () => void;
   isAdmin: false;
   onLongPress: () => void;
+  chatRoom: any;
 
 }
 
-const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, isAdmin, onLongPress }: UserItemProps) => {
+const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, isAdmin, onLongPress, chatRoom }: UserItemProps) => {
   const navigation = useNavigation();
 
+  const [adminColor, setadminColor] = useState([])
+  const [memberColor, setmemberColor] = useState([])
+  const [ownerColor, setownerColor] = useState([])
 
   // const createChatRoom = async () => {
   //   try {
@@ -59,19 +64,61 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, i
 
 
 
+  useEffect(() => {
 
+    const chekcolor = async () => {
+      if (chatRoom && oneUserItem) {
+        const isAdmin = (
+          await DataStore.query(ChatRoomAdminship)
+        ).filter((u) => u?.userID === oneUserItem?.id && u?.chatroomID === chatRoom?.id).map((i) => i?.userID);
+
+        const isMember = (
+          await DataStore.query(ChatRoomMembership)
+        ).filter((u) => u?.userID === oneUserItem?.id && u?.chatroomID === chatRoom?.id).map((i) => i?.userID);
+
+        const isOwner = (
+          await DataStore.query(ChatRoomOwnership)
+        ).filter((u) => u?.userID === oneUserItem?.id && u?.chatroomID === chatRoom?.id).map((i) => i?.userID);
+
+
+
+        // Update adminColor state with the new values
+        setadminColor((prevAdminColor) => prevAdminColor.concat(isAdmin));
+        setmemberColor((prevAdminColor) => prevAdminColor.concat(isMember));
+        setownerColor((prevAdminColor) => prevAdminColor.concat(isOwner));
+
+        // Update memberColor state with the new values
+
+      }
+    };
+
+    chekcolor()
+
+  }, [])
   return (
     <Pressable onLongPress={onLongPress}
       onPress={onPress}>
       <View style={styles.container}>
-        <Image style={styles.image} source={{ uri: oneUserItem?.imageUri }} />
-        <View style={styles.RightContainer}>
-          <View >
-            <Text style={styles.name}>{oneUserItem?.name}</Text>
-            {isAdmin && <Text>admin</Text>}
+        <View style={{flex:1,display:'flex',flexDirection:"row",justifyContent:'space-between',alignItems:'center'}}>
+          <Image style={styles.image} source={{ uri: oneUserItem?.imageUri }} />
+          <View style={styles.RightContainer}>
+            <View >
 
+              <Text style={[styles.name,
+              { color: adminColor.includes(oneUserItem?.id) ? 'blue' : ownerColor.includes(oneUserItem?.id) ? 'red' : memberColor.includes(oneUserItem?.id) ? 'green' : 'black' }
+              ]}>
+
+                {oneUserItem?.name}</Text>
+              {/* {adminColor.includes(oneUserItem?.id) ? <Text>admin</Text> : null} */}
+              {adminColor.includes(oneUserItem?.id) && <Text style={{ color: 'blue' }}>admin</Text>}
+              {ownerColor.includes(oneUserItem?.id) && <Text style={{ color: 'red' }}>owner</Text>}
+              {memberColor.includes(oneUserItem?.id) && <Text style={{ color: 'green' }}>member</Text>}
+
+            </View>
           </View>
+          <MaterialIcons name="message" size={24} color="black" />
         </View>
+
       </View>
 
       {isSelected !== undefined && (

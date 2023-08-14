@@ -68,6 +68,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState<User | null>(null);
+// Auth.currentAuthenticatedUser().then(console.log)
 
   useEffect(() => {
     const listener = Hub.listen("datastore", async (hubData) => {
@@ -149,6 +150,10 @@ function RootLayoutNav() {
             headerTitle: () => <ChatRoomHeader />,
           }} />
 <Stack.Screen name="GroupInfoScreen" options={{
+            headerShown: true,
+
+          }} />
+          <Stack.Screen name="SettingScreen" options={{
             headerShown: true,
 
           }} />

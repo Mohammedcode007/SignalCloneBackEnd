@@ -13,7 +13,6 @@ import { addToActive } from '../redux/mainSlice';
 
 const ChatRoomScreen = () => {
   const {exitMessageContent} = useSelector((state) => state.mainReducer);
-console.log(exitMessageContent,"exitMessageContent");
 
   const [messages, setMessages] = useState<MessageModel[]>([]);
   const [messageReplyTo, setMessageReplyTo] = useState<MessageModel | null>(
@@ -91,7 +90,6 @@ console.log(exitMessageContent,"exitMessageContent");
       return;
     }
    const chatroomuser = await DataStore.query(ChatRoomUser)
-console.log(chatroomuser,"chatroomuser");
 
 const ChatRoomIdFilter = chatroomuser.filter((item)=>{return(
   item?.chatRoomId === chatRoom?.id
@@ -105,8 +103,7 @@ const authUser = await Auth.currentAuthenticatedUser();
         return item?.userId === dbUser?.id;
       })[0];
 
-      console.log(userIdFilter?.createdAt,"userIdFilter");
-      console.log(userIdFilter,"userIdFilter");
+     
 
     // استعلام الرسائل التي تم استلامها بعد دخول المستخدم للغرفة
     const fetchedMessages = await DataStore.query(
@@ -133,7 +130,6 @@ const authUser = await Auth.currentAuthenticatedUser();
       const filteredMessages = filterMessagesAfterTime(fetchedMessages, userIdFilter);
       setMessages(filteredMessages);
 
-      console.log(filteredMessages,"filteredMessages");
     }
     // استدعاء الدالة وتمرير قائمة الرسائل والوقت المستهدف
     
@@ -168,7 +164,7 @@ const authUser = await Auth.currentAuthenticatedUser();
 
   return (
     <SafeAreaView style={styles.page}>
-      <View style={{ height: 100, width: '100%', marginTop: '10%' }}>
+      <View style={{ height: 80, width: '100%', marginTop: '10%' }}>
         <ChatRoomHeader id={route.params?.id} />
       </View>
       <FlatList
@@ -191,8 +187,7 @@ const authUser = await Auth.currentAuthenticatedUser();
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: 'white',
-  },
+    backgroundColor:"white"   },
 });
 
 export default ChatRoomScreen;

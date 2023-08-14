@@ -1,6 +1,6 @@
 {
   "api": {
-    "Test": {
+    "chatplus": {
       "dependsOn": [],
       "output": {
         "authConfig": {
@@ -23,7 +23,7 @@
     }
   },
   "auth": {
-    "Test": {
+    "chatplus": {
       "customAuth": false,
       "dependsOn": [
         {
@@ -32,7 +32,7 @@
             "Name"
           ],
           "category": "function",
-          "resourceName": "TestPostConfirmation",
+          "resourceName": "chatplusPostConfirmation",
           "triggerProvider": "Cognito"
         }
       ],
@@ -43,13 +43,14 @@
         ],
         "passwordProtectionSettings": {
           "passwordPolicyCharacters": [],
-          "passwordPolicyMinLength": 8
+          "passwordPolicyMinLength": 6
         },
-        "signupAttributes": [],
-        "socialProviders": [],
-        "usernameAttributes": [
-          "EMAIL"
+        "signupAttributes": [
+          "EMAIL",
+          "NAME"
         ],
+        "socialProviders": [],
+        "usernameAttributes": [],
         "verificationMechanisms": [
           "EMAIL"
         ]
@@ -59,56 +60,32 @@
     }
   },
   "function": {
-    "TestPostConfirmation": {
+    "chatplusPostConfirmation": {
       "build": true,
-      "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
   },
-  "hosting": {
-    "amplifyhosting": {
-      "providerPlugin": "awscloudformation",
-      "service": "amplifyhosting",
-      "type": "manual"
-    }
-  },
   "parameters": {
-    "AMPLIFY_function_TestPostConfirmation_deploymentBucketName": {
+    "AMPLIFY_function_chatplusPostConfirmation_deploymentBucketName": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "TestPostConfirmation"
+          "resourceName": "chatplusPostConfirmation"
         }
       ]
     },
-    "AMPLIFY_function_TestPostConfirmation_s3Key": {
+    "AMPLIFY_function_chatplusPostConfirmation_s3Key": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "TestPostConfirmation"
-        }
-      ]
-    },
-    "AMPLIFY_hosting_amplifyhosting_appId": {
-      "usedBy": [
-        {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
-        }
-      ]
-    },
-    "AMPLIFY_hosting_amplifyhosting_type": {
-      "usedBy": [
-        {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
+          "resourceName": "chatplusPostConfirmation"
         }
       ]
     }
   },
   "storage": {
-    "s37a7942bf": {
+    "s3e0847696": {
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "S3"

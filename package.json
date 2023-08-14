@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@aws-amplify/cli": "^10.8.1",
-    "@aws-amplify/ui-react-native": "^1.2.22",
+    "@aws-amplify/ui-react-native": "^1.2.23",
     "@azure/core-asynciterator-polyfill": "^1.0.2",
     "@babel/polyfill": "^7.12.1",
     "@expo/react-native-action-sheet": "^4.0.1",
@@ -26,7 +26,7 @@
     "@reduxjs/toolkit": "^1.9.5",
     "@stablelib/base64": "^1.0.1",
     "@stablelib/utf8": "^1.0.1",
-    "aws-amplify": "^5.3.5",
+    "aws-amplify": "^5.3.6",
     "aws-amplify-react-native": "^7.0.2",
     "browserslist": "^4.21.9",
     "expo": "~48.0.18",

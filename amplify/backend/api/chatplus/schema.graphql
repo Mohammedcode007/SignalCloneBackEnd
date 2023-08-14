@@ -1,0 +1,75 @@
+type ChatRoomBanship @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  chatroomID: ID! @index(name: "byChatRoom")
+}
+
+type ChatRoomMembership @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  chatroomID: ID! @index(name: "byChatRoom")
+}
+
+type ChatRoomAdminship @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  chatroomID: ID! @index(name: "byChatRoom")
+  userID: ID! @index(name: "byUser")
+}
+
+type ChatRoomOwnership @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  chatroomID: ID! @index(name: "byChatRoom")
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
+type ChatRoom @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  newMessages: Int
+  name: String
+  imageUri: String
+  isRoom: Boolean
+  LastMessage: Message @hasOne
+  Messages: [Message] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  ChatRoomUsers: [User] @manyToMany(relationName: "ChatRoomUser")
+  Admin: [User] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  WelcomeMessage: String
+  Creator: User @hasOne
+  Owners: [User] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  ChatRoomOwnerships: [ChatRoomOwnership] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  ChatRoomAdminships: [ChatRoomAdminship] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  ChatRoomMemberships: [ChatRoomMembership] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  ChatRoomBanships: [ChatRoomBanship] @hasMany(indexName: "byChatRoom", fields: ["id"])
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  imageUri: String
+  name: String
+  status: String
+  lastOnlineAt: AWSTimestamp
+  chatrooms: [ChatRoom] @manyToMany(relationName: "ChatRoomUser")
+  Messages: [Message] @hasMany(indexName: "byUser", fields: ["id"])
+  chatroomID: ID @index(name: "byChatRoom")
+  ownedChatRooms: [ChatRoomOwnership] @hasMany(indexName: "byUser", fields: ["id"])
+  adminChatRooms: [ChatRoomAdminship] @hasMany(indexName: "byUser", fields: ["id"])
+  memberChatRooms: [ChatRoomMembership] @hasMany(indexName: "byUser", fields: ["id"])
+  banChatRooms: [ChatRoomBanship] @hasMany(indexName: "byUser", fields: ["id"])
+}
+
+type Message @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  content: String
+  image: String
+  audio: String
+  status: MessageStatus
+  replayToMessageID: ID
+  chatroomID: ID! @index(name: "byChatRoom")
+  userID: ID! @index(name: "byUser")
+}
+ 

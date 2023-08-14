@@ -17,7 +17,6 @@ const SignUpScreen = () => {
             confirmPassword,
             email,// قم بتوفير كلمة المرور هنا
           });
-          console.log(res,"res");
           
           // إجراءات بعد تسجيل المستخدم الجديد هنا
         } catch (error) {
@@ -27,10 +26,7 @@ const SignUpScreen = () => {
     // Perform the sign-up logic here
     // You can use your preferred authentication method or API for creating a new user account
     // For simplicity, we will just log the values for now
-    console.log('Username:', username);
-    console.log('Password:', password);
-    console.log('Confirm Password:', confirmPassword);
-    console.log('Email:', email);
+   
   };
 
   return (

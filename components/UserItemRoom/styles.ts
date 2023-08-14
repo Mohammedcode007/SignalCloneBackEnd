@@ -3,9 +3,9 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     container: {
       flexDirection: 'row',
-      // padding: 10,
-      borderBottomColor:'grey',
-      borderBottomWidth:0.5
+      padding: 10,
+      justifyContent:'space-between',
+      alignItems:'center',
 
     },
     RightContainer: {

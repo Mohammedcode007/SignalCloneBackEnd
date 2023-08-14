@@ -8,7 +8,7 @@ import { RefreshControl } from 'react-native';
 
 import chatRoomDummy from "../../assets/dummy-data/ChatRooms"
 import { Auth, DataStore } from 'aws-amplify';
-import { ChatRoom, ChatRoomUser, User } from '../../src/models';
+import { ChatRoom, ChatRoomBanship, ChatRoomUser, User } from '../../src/models';
 import { addToActive, setjoin } from '../../redux/mainSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -102,7 +102,6 @@ const Rooms = () => {
 
     const isUserInside = allUsers?.filter((user) => { return (user === dbUser?.id) })
 
-console.log(isUserInside,"isUserInside");
 
     if (isUserInside.length > 0) {
    
@@ -132,28 +131,25 @@ console.log(isUserInside,"isUserInside");
 
   
   const handleItemPress = async (item) => {
-    setItemcRoom(item)
-    // Navigate to another screen with the selected item
-    // const authUser = await Auth.currentAuthenticatedUser();
-    // const loggedInUserId = authUser.attributes.sub;
-    // const dbUser = await DataStore.query(User, loggedInUserId);
-
-    // if (!dbUser) {
-    //   Alert.alert("There was an error creating the group");
-    //   return;
-    // }
-    setitem(item)
-
-    fetchUsers(item)
-// setTimeout(async()=>{
-//   if (dbUser) {
-//     await addUserToChatRoom(dbUser, item);
-//   }
-// },3000)
-   
-
-    // navigation.navigate('ChatRoomScreen', { id: item.id });
+  
+    const authUser = await Auth.currentAuthenticatedUser();
+    const dbUser = await DataStore.query(User, authUser.attributes.sub);
+  
+    if (dbUser) {
+      const isBAN = (await DataStore.query(ChatRoomBanship)).filter((u) => u?.userID === dbUser?.id && u?.chatroomID === item?.id);
+  
+      if (isBAN.length > 0) {
+        // User is banned, show alert
+        Alert.alert("You are banned from this room.");
+      } else {
+        // User is not banned, proceed with the rest of the code
+        setItemcRoom(item);
+        setitem(item);
+        fetchUsers(item);
+      }
+    }
   };
+  
   const [refreshing, setRefreshing] = useState(false);
 
 const onRefresh = async () => {

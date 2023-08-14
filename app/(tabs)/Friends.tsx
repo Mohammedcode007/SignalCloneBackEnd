@@ -65,6 +65,7 @@ export default function TabTwoScreen({route}) {
     const authUser = await Auth.currentAuthenticatedUser();
     const loggedInUserId = authUser.attributes.sub;
     const dbUser = await DataStore.query(User, loggedInUserId);
+console.log(dbUser,"dbUser");
 
     if (!dbUser) {
       Alert.alert("There was an error creating the group");
@@ -81,10 +82,8 @@ export default function TabTwoScreen({route}) {
         "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/group.jpeg";
 
     }
-    console.log(newChatRoomData,"chatroom");
 
     const newChatRoom = await DataStore.save(new ChatRoom(newChatRoomData));
-console.log(newChatRoom);
 
 
     if (dbUser) {
