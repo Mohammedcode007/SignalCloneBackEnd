@@ -5,7 +5,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   rooms: [],
   join:[],
-  exitMessageContent:''
+  exitMessageContent:'',
+  notify:0
 };
 
 const mainSlice = createSlice({
@@ -19,6 +20,13 @@ const mainSlice = createSlice({
       const roomIdToRemove = action.payload;
       state.rooms = state.rooms.filter(room => room.id !== roomIdToRemove);
     },
+    addTonotify: (state, action) => {
+      state.notify=action.payload
+    },
+    // removeFromnotify: (state, action) => {
+    //   const notifyToRemove = action.payload;
+    //   state.notify = state.notify.filter(room => room.id !== roomIdToRemove);
+    // },
     setjoin: (state, action) => {
       state.join.push(action.payload);
     },
@@ -28,5 +36,5 @@ const mainSlice = createSlice({
   },
 });
 
-export const { addToActive,setjoin,setexitMessageContent,removeFromActive } = mainSlice.actions;
+export const { addToActive,setjoin,setexitMessageContent,removeFromActive,addTonotify } = mainSlice.actions;
 export default mainSlice.reducer;

@@ -1,0 +1,12 @@
+{
+  "resourceName": "s3ceac39d2",
+  "policyUUID": "ceac39d2",
+  "bucketName": "finalchatbe32e7e4b82847d090e1794981ace19b",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "groupAccess": {}
+}

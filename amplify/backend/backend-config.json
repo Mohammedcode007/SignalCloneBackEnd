@@ -1,6 +1,6 @@
 {
   "api": {
-    "chatplus": {
+    "finalChat": {
       "dependsOn": [],
       "output": {
         "authConfig": {
@@ -23,7 +23,7 @@
     }
   },
   "auth": {
-    "chatplus": {
+    "finalChat": {
       "customAuth": false,
       "dependsOn": [
         {
@@ -32,7 +32,7 @@
             "Name"
           ],
           "category": "function",
-          "resourceName": "chatplusPostConfirmation",
+          "resourceName": "finalChatPostConfirmation",
           "triggerProvider": "Cognito"
         }
       ],
@@ -43,10 +43,9 @@
         ],
         "passwordProtectionSettings": {
           "passwordPolicyCharacters": [],
-          "passwordPolicyMinLength": 6
+          "passwordPolicyMinLength": 8
         },
         "signupAttributes": [
-          "EMAIL",
           "NAME"
         ],
         "socialProviders": [],
@@ -60,32 +59,32 @@
     }
   },
   "function": {
-    "chatplusPostConfirmation": {
+    "finalChatPostConfirmation": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
   },
   "parameters": {
-    "AMPLIFY_function_chatplusPostConfirmation_deploymentBucketName": {
+    "AMPLIFY_function_finalChatPostConfirmation_deploymentBucketName": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "chatplusPostConfirmation"
+          "resourceName": "finalChatPostConfirmation"
         }
       ]
     },
-    "AMPLIFY_function_chatplusPostConfirmation_s3Key": {
+    "AMPLIFY_function_finalChatPostConfirmation_s3Key": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "chatplusPostConfirmation"
+          "resourceName": "finalChatPostConfirmation"
         }
       ]
     }
   },
   "storage": {
-    "s3e0847696": {
+    "s3ceac39d2": {
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "S3"

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Pressable } from 'react-native';
+import { Image, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { Text, View } from '../Themed';
 import { styles } from './styles';
 import { Auth, DataStore } from "aws-amplify";
-import { ChatRoom, User, ChatRoomUser, ChatRoomAdminship, ChatRoomMembership, ChatRoomOwnership } from "../../src/models";
+import { ChatRoom, User, ChatRoomUser, ChatRoomAdminship, ChatRoomMembership, ChatRoomOwnership, FriendRequest } from "../../src/models";
 import { useNavigation } from '@react-navigation/native';
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 
@@ -95,11 +95,41 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, i
     chekcolor()
 
   }, [])
+
+  const [checkIcon, setcheckIcon] = useState()
+
+
+  const createRequest = async (userId) => {
+    const authUser = await Auth.currentAuthenticatedUser();
+    const dbUser = await DataStore.query(User, authUser.attributes.sub);
+    if (dbUser) {
+      const check = await (await DataStore.query(FriendRequest)).filter((i) => {
+        return (
+          i?.senderID === dbUser?.id && i?.recipientID === userId
+        )
+      })
+
+      if (check.length > 0) {
+        console.log(check.length, "vvvvv");
+
+      } else {
+        const res = await DataStore.save(new FriendRequest({
+          senderID: dbUser?.id,
+          recipientID: userId,
+          status: 'PENDING'
+        }));
+        setcheckIcon(res)
+
+      }
+      console.log(check);
+    }
+
+  }
   return (
     <Pressable onLongPress={onLongPress}
       onPress={onPress}>
       <View style={styles.container}>
-        <View style={{flex:1,display:'flex',flexDirection:"row",justifyContent:'space-between',alignItems:'center'}}>
+        <View style={{ flex: 1, display: 'flex', flexDirection: "row", justifyContent: 'space-between', alignItems: 'center' }}>
           <Image style={styles.image} source={{ uri: oneUserItem?.imageUri }} />
           <View style={styles.RightContainer}>
             <View >
@@ -116,6 +146,16 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, i
 
             </View>
           </View>
+          <TouchableOpacity onPress={() => createRequest(oneUserItem?.id)}>
+            {
+              checkIcon ? (
+                <Image style={{ width: 20, height: 20, marginHorizontal: 20 }} source={require('../../assets/images/user-check.png')} />
+
+              ) : (<Image style={{ width: 20, height: 20, marginHorizontal: 20 }} source={require('../../assets/images/user-plus.png')} />
+              )
+            }
+
+          </TouchableOpacity>
           <MaterialIcons name="message" size={24} color="black" />
         </View>
 

@@ -1,32 +1,32 @@
 {
   "staging": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-chatplus-staging-161939-authRole",
-      "UnauthRoleArn": "arn:aws:iam::408387088770:role/amplify-chatplus-staging-161939-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::408387088770:role/amplify-chatplus-staging-161939-authRole",
+      "AuthRoleName": "amplify-finalchat-staging-194054-authRole",
+      "UnauthRoleArn": "arn:aws:iam::408387088770:role/amplify-finalchat-staging-194054-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::408387088770:role/amplify-finalchat-staging-194054-authRole",
       "Region": "eu-north-1",
-      "DeploymentBucketName": "amplify-chatplus-staging-161939-deployment",
-      "UnauthRoleName": "amplify-chatplus-staging-161939-unauthRole",
-      "StackName": "amplify-chatplus-staging-161939",
-      "StackId": "arn:aws:cloudformation:eu-north-1:408387088770:stack/amplify-chatplus-staging-161939/35628e80-353e-11ee-be1e-0ef171ab32a8",
-      "AmplifyAppId": "d1l6ha31vtlqfh",
-      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-chatplus-staging-161939-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+      "DeploymentBucketName": "amplify-finalchat-staging-194054-deployment",
+      "UnauthRoleName": "amplify-finalchat-staging-194054-unauthRole",
+      "StackName": "amplify-finalchat-staging-194054",
+      "StackId": "arn:aws:cloudformation:eu-north-1:408387088770:stack/amplify-finalchat-staging-194054/a64630f0-3ba3-11ee-b048-0ef4ea067794",
+      "AmplifyAppId": "d26phdoui8nzg8",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-finalchat-staging-194054-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
-        "chatplus": {}
-      },
-      "function": {
-        "chatplusPostConfirmation": {
-          "deploymentBucketName": "amplify-chatplus-staging-161939-deployment",
-          "s3Key": "amplify-builds/chatplusPostConfirmation-497236412b6c716a3150-build.zip"
-        }
+        "finalChat": {}
       },
       "api": {
-        "chatplus": {}
+        "finalChat": {}
+      },
+      "function": {
+        "finalChatPostConfirmation": {
+          "deploymentBucketName": "amplify-finalchat-staging-194054-deployment",
+          "s3Key": "amplify-builds/finalChatPostConfirmation-57325a616c335157544c-build.zip"
+        }
       },
       "storage": {
-        "s3e0847696": {}
+        "s3ceac39d2": {}
       }
     }
   }

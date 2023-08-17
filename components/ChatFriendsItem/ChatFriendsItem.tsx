@@ -6,19 +6,17 @@ import { ChatRoomUser, User,ChatRoom, Message } from '../../src/models';
 import { Auth, DataStore } from 'aws-amplify';
 import moment from "moment";
 
-interface ChatRoomItemProps {
+interface ChatFriendsItemProps {
   chatRoomDataItem: {
     users: any[]; // Update this with the actual type of 'user' arraa
     newMessages:any;
     lastMessage:any;
-    id:any;
-
     // Add other properties of 'chatRoomDataItem' if any
   };
   index:void
 }
 
-const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem,index }: ChatRoomItemProps) => {
+const ChatFriendsItem: React.FC<ChatFriendsItemProps> = ({ chatRoomDataItem,index }: ChatFriendsItemProps) => {
   // const user = chatRoomDataItem?.users[1];
     const [users, setUsers] = useState<User[]>([]); // all users in this chatroom
     const [user, setUser] = useState<User | null>(null); // the display user
@@ -70,12 +68,6 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem,index }: C
     // Random background color for each item
     const circleBackgroundColor = getRandomColor();
     const firstChar = chatRoomDataItem?.name ? chatRoomDataItem?.name.charAt(0).toUpperCase() : '';
-
-
-
-
- 
-    
 
   return (
     <View style={styles.container}>
@@ -129,4 +121,4 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem,index }: C
 
 
 
-export default ChatRoomItem
+export default ChatFriendsItem

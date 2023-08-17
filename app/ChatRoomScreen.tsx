@@ -9,10 +9,10 @@ import { ChatRoom, ChatRoomUser, Message as MessageModel, User } from "../src/mo
 import { Auth, SortDirection } from 'aws-amplify';
 import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToActive } from '../redux/mainSlice';
+import { addToActive, removeFromActive, setexitMessageContent } from '../redux/mainSlice';
 
 const ChatRoomScreen = () => {
-  const {exitMessageContent} = useSelector((state) => state.mainReducer);
+  const { exitMessageContent } = useSelector((state) => state.mainReducer);
 
   const [messages, setMessages] = useState<MessageModel[]>([]);
   const [messageReplyTo, setMessageReplyTo] = useState<MessageModel | null>(
@@ -24,22 +24,22 @@ const ChatRoomScreen = () => {
   const [targetTime, settargetTime] = useState();
   const route = useRoute();
 
-  
+
 
   useEffect(() => {
-    if(route.params?.id){
+    if (route.params?.id) {
       setEntryTime(new Date());
       setEntryTimeSet(true);
     }
-      
-    
+
+
   }, [route.params?.id]);
-  
-  
+
+
   const dispatch = useDispatch();
 
   const navigation = useNavigation();
-  
+
 
 
   useEffect(() => {
@@ -49,7 +49,7 @@ const ChatRoomScreen = () => {
 
   useEffect(() => {
     if (chatRoom?.isRoom === true) {
-      
+
       fetchRecentMessages()
     } else (
       fetchMessages()
@@ -89,27 +89,29 @@ const ChatRoomScreen = () => {
     if (!chatRoom || !entryTime) {
       return;
     }
-   const chatroomuser = await DataStore.query(ChatRoomUser)
+    const chatroomuser = await DataStore.query(ChatRoomUser)
 
-const ChatRoomIdFilter = chatroomuser.filter((item)=>{return(
-  item?.chatRoomId === chatRoom?.id
-)})
+    const ChatRoomIdFilter = chatroomuser.filter((item) => {
+      return (
+        item?.chatRoomId === chatRoom?.id
+      )
+    })
 
 
-const authUser = await Auth.currentAuthenticatedUser();
-      const loggedInUserId = authUser.attributes.sub;
-      const dbUser = await DataStore.query(User, loggedInUserId);
-      const userIdFilter = ChatRoomIdFilter?.filter((item) => {
-        return item?.userId === dbUser?.id;
-      })[0];
+    const authUser = await Auth.currentAuthenticatedUser();
+    const loggedInUserId = authUser.attributes.sub;
+    const dbUser = await DataStore.query(User, loggedInUserId);
+    const userIdFilter = ChatRoomIdFilter?.filter((item) => {
+      return item?.userId === dbUser?.id;
+    })[0];
 
-     
+
 
     // استعلام الرسائل التي تم استلامها بعد دخول المستخدم للغرفة
     const fetchedMessages = await DataStore.query(
       MessageModel,
       (message) =>
-      message.chatroomID.eq(chatRoom?.id),
+        message.chatroomID.eq(chatRoom?.id),
       {
         sort: (message) => message.createdAt(SortDirection.DESCENDING),
       }
@@ -117,27 +119,27 @@ const authUser = await Auth.currentAuthenticatedUser();
 
 
     const filterMessagesAfterTime = (messages, userIdFilter) => {
-      
+
       return messages.filter((message) => message.createdAt > userIdFilter.createdAt);
     };
 
-  
-    
-  
-    
 
-    if(userIdFilter){
+
+
+
+
+    if (userIdFilter) {
       const filteredMessages = filterMessagesAfterTime(fetchedMessages, userIdFilter);
       setMessages(filteredMessages);
 
     }
     // استدعاء الدالة وتمرير قائمة الرسائل والوقت المستهدف
-    
-    
-  
+
+
+
   };
-  
-  
+
+
 
 
   const fetchMessages = async () => {
@@ -157,6 +159,118 @@ const authUser = await Auth.currentAuthenticatedUser();
     console.log(fetchedMessages, "fetchedMessages");
     setMessages(fetchedMessages);
   };
+
+
+  const fetchLatestMessage = async () => {
+    try {
+      const authUser = await Auth.currentAuthenticatedUser();
+      const myId = authUser.attributes.sub;
+      if (myId) {
+        const filterMesageTime = messages?.filter((i) => {
+          return (
+            i?.userID === myId
+          )
+        })
+        if(filterMesageTime[0].createdAt){
+          const currentTime = new Date();
+          const messageTime = new Date(filterMesageTime[0].createdAt);
+  
+          const timeDifferenceInMillis = currentTime - messageTime;
+          const timeDifferenceInMinutes = timeDifferenceInMillis / 60000;
+          
+         
+  
+          console.log(timeDifferenceInMinutes,"timeDifferenceInMinutes");
+  
+          if (timeDifferenceInMinutes > 5) {
+            console.log(timeDifferenceInMinutes,"timeDifferenceInMinutes");
+            
+            const kickuser = async () => {
+              try {
+                // Find the specific ChatRoomUser instance to delete
+                const chatRoomUserToDelete = await (
+                  await DataStore.query(ChatRoomUser)
+                ).filter(
+                  (cru) => cru.chatRoomId === filterMesageTime[0].chatroomID && cru?.userId === filterMesageTime[0].userID
+                );
+  
+                if (chatRoomUserToDelete.length > 0) {
+  
+                  await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
+                  const authUser = await Auth.currentAuthenticatedUser();
+                  const dbUser = await DataStore.query(User, authUser.attributes.sub);
+  
+                  // أنشئ محتوى رسالة الخروج
+                  if (dbUser) {
+  
+                    const exitMessage = await DataStore.save(
+                      new MessageModel({
+                        content: `${dbUser?.name}  kicked by server`,
+                        userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+                        chatroomID: filterMesageTime[0].chatroomID,
+                      })
+                    );
+                    dispatch(removeFromActive(filterMesageTime[0].chatroomID));
+                    dispatch(setexitMessageContent(exitMessage))
+  
+  
+                  }
+                  // navigation.navigate('(tabs)');
+  
+                  console.log("user kickied");
+                } else {
+                  console.log("لم يتم العثور على المستخدم في غرفة الدردشة");
+                }
+  
+  
+              } catch (error) {
+                console.error("Error deleting user:", error);
+              }
+            };
+            kickuser()
+            console.log('More than 5 minutes have passed since the message was sent.');
+            // اتخاذ إجراء عند تجاوز الخمس دقائق
+          } else {
+            console.log('Less than 5 minutes have passed since the message was sent.');
+            // اتخاذ إجراء عند عدم تجاوز الخمس دقائق
+          }
+        }
+        
+
+      }
+
+
+      if (messages.length > 0) {
+        return messages[0]; // أحدث رسالة
+      }
+
+      return null; // لم يتم العثور على رسائل
+    } catch (error) {
+      console.log('Error fetching latest message:', error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    if (chatRoom?.isRoom) {
+      console.log(chatRoom?.isRoom);
+      
+      // تنفيذ الكود الأول مرة عند تحميل الصفحة
+      fetchLatestMessage();
+
+
+      // تنفيذ الكود كل خمس دقائق
+      const intervalId = setInterval(() => {
+        fetchLatestMessage();
+      }, 5 * 60 * 1000); // 5 دقائق * 60 ثانية * 1000 ملي ثانية
+
+      // عندما يتم تفريغ الكومبوننت أو إلغاء الصفحة، قم بإلغاء الـ setInterval
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+
+  }, [chatRoom,messages]); // يتم تنفيذه مرة واحدة عند تحميل الصفحة فقط
 
   if (!chatRoom) {
     return <ActivityIndicator />;
@@ -187,7 +301,8 @@ const authUser = await Auth.currentAuthenticatedUser();
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor:"white"   },
+    backgroundColor: "white"
+  },
 });
 
 export default ChatRoomScreen;

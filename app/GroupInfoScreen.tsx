@@ -160,7 +160,7 @@ if(dbUser){
   const exitMessage = await DataStore.save(
     new MessageModel({
       content: `${dbUser.name} قد غادر الغرفة.`,
-      userID: '90ccf9ec-4021-700a-1e8e-3523a0692654',
+      userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
       chatroomID: chatRoom.id,
     })
   );

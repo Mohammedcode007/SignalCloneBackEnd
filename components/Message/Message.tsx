@@ -245,7 +245,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
         const exitMessage = await DataStore.save(
           new MessageModel({
             content: `${user?.name}  set owner by ${dbUser.name} `,
-            userID: '90ccf9ec-4021-700a-1e8e-3523a0692654',
+            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
             chatroomID: message?.chatroomID,
           })
         );
@@ -309,7 +309,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
         const exitMessage = await DataStore.save(
           new MessageModel({
             content: `${user?.name}  set admin by ${dbUser.name} `,
-            userID: '90ccf9ec-4021-700a-1e8e-3523a0692654',
+            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
             chatroomID: message?.chatroomID,
           })
         );
@@ -372,7 +372,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
         const exitMessage = await DataStore.save(
           new MessageModel({
             content: `${user?.name}  set member by ${dbUser.name} `,
-            userID: '90ccf9ec-4021-700a-1e8e-3523a0692654',
+            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
             chatroomID: message?.chatroomID,
           })
         );
@@ -457,7 +457,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
         const exitMessage = await DataStore.save(
           new MessageModel({
             content: `${user?.name}  set ban by ${dbUser.name} `,
-            userID: '90ccf9ec-4021-700a-1e8e-3523a0692654',
+            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
             chatroomID: message?.chatroomID,
           })
         );
@@ -494,7 +494,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
           const exitMessage = await DataStore.save(
             new MessageModel({
               content: `${user?.name}  kicked by ${dbUser.name} `,
-              userID: '90ccf9ec-4021-700a-1e8e-3523a0692654',
+              userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
               chatroomID: message?.chatroomID,
             })
           );
@@ -618,7 +618,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   return (
     <View style={{ flex: 1 }}>
       {
-        message?.userID === '90ccf9ec-4021-700a-1e8e-3523a0692654' ? (
+        message?.userID === '80ecd97c-2071-70f7-79e6-4036fb2d5dbb' ? (
           <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
             <Text>{message?.content}</Text>
           </View>

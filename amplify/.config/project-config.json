@@ -2,7 +2,7 @@
   "providers": [
     "awscloudformation"
   ],
-  "projectName": "chatplus",
+  "projectName": "finalChat",
   "version": "3.1",
   "frontend": "javascript",
   "javascript": {

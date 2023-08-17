@@ -1,3 +1,22 @@
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+type Friendship @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  myID: ID
+}
+
+type FriendRequest @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  senderID: ID
+  recipientID: ID
+  status: FriendRequestStatus
+}
+
 type ChatRoomBanship @model @auth(rules: [{allow: public}]) {
   id: ID!
   userID: ID! @index(name: "byUser")
@@ -60,6 +79,8 @@ type User @model @auth(rules: [{allow: public}]) {
   adminChatRooms: [ChatRoomAdminship] @hasMany(indexName: "byUser", fields: ["id"])
   memberChatRooms: [ChatRoomMembership] @hasMany(indexName: "byUser", fields: ["id"])
   banChatRooms: [ChatRoomBanship] @hasMany(indexName: "byUser", fields: ["id"])
+  Friendships: [Friendship] @hasMany(indexName: "byUser", fields: ["id"])
+  Signature: String
 }
 
 type Message @model @auth(rules: [{allow: public}]) {

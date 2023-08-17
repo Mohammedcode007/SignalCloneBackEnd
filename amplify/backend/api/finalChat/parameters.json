@@ -1,5 +1,5 @@
 {
-  "AppSyncApiName": "chatplus",
+  "AppSyncApiName": "finalChat",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false
 }

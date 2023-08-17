@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Image, Text, View, useColorScheme, useWindowDimensions, SafeAreaView } from 'react-native';
 import ChatRoomScreen from './ChatRoomScreen';
 import { EvilIcons, Feather } from '@expo/vector-icons';
-import { Amplify,Auth,DataStore,Hub } from 'aws-amplify';
+import { Amplify, Auth, DataStore, Hub } from 'aws-amplify';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { Provider } from 'react-redux';
@@ -48,19 +48,19 @@ export default function RootLayout() {
       
      } */}
       {loaded &&
-      <Authenticator.Provider>
-      <Authenticator loginMechanisms={['username']}>
-      <ActionSheetProvider>
-      <Provider store={store}>
+        <Authenticator.Provider>
+          <Authenticator loginMechanisms={['username']}>
+            <ActionSheetProvider>
+              <Provider store={store}>
 
-      <RootLayoutNav />
-      </Provider>
+                <RootLayoutNav />
+              </Provider>
 
-      </ActionSheetProvider>
+            </ActionSheetProvider>
 
-      </Authenticator>
-    </Authenticator.Provider>
-     }
+          </Authenticator>
+        </Authenticator.Provider>
+      }
     </>
   );
 }
@@ -68,7 +68,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState<User | null>(null);
-// Auth.currentAuthenticatedUser().then(console.log)
+  // Auth.currentAuthenticatedUser().then(console.log)
 
   useEffect(() => {
     const listener = Hub.listen("datastore", async (hubData) => {
@@ -111,7 +111,7 @@ function RootLayoutNav() {
   useEffect(() => {
     const interval = setInterval(async () => {
       await updateLastOnline();
-    },  60 * 1000);
+    },  1000);
     return () => clearInterval(interval);
   }, [user]);
 
@@ -136,20 +136,25 @@ function RootLayoutNav() {
     setUser(response);
   };
 
-  
+
   return (
     <>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
 
-          <Stack.Screen name="(tabs)" options={{ headerShown: false 
- }}
-           />
+          <Stack.Screen name="(tabs)" options={{
+            headerShown: false
+          }}
+          />
           <Stack.Screen name="ChatRoomScreen" options={{
             headerShown: false,
             headerTitle: () => <ChatRoomHeader />,
           }} />
-<Stack.Screen name="GroupInfoScreen" options={{
+          <Stack.Screen name="GroupInfoScreen" options={{
+            headerShown: true,
+
+          }} />
+          <Stack.Screen name="Notifcation" options={{
             headerShown: true,
 
           }} />
@@ -157,7 +162,7 @@ function RootLayoutNav() {
             headerShown: true,
 
           }} />
-       
+
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

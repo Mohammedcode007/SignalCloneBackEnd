@@ -67,12 +67,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "chatplusPostConfirmation",
+            "finalChatPostConfirmation",
             {
               "Fn::Join": [
                 "",
                 [
-                  "chatplusPostConfirmation",
+                  "finalChatPostConfirmation",
                   "-",
                   {
                     "Ref": "env"
@@ -122,12 +122,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "chatplusPostConfirmation",
+            "finalChatPostConfirmation",
             {
               "Fn::Join": [
                 "",
                 [
-                  "chatplusPostConfirmation",
+                  "finalChatPostConfirmation",
                   "-",
                   {
                     "Ref": "env"

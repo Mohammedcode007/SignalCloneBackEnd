@@ -2,6 +2,12 @@ import { ModelInit, MutableModel, __modelMeta__, ManagedIdentifier } from "@aws-
 // @ts-ignore
 import { LazyLoading, LazyLoadingDisabled, AsyncItem, AsyncCollection } from "@aws-amplify/datastore";
 
+export enum FriendRequestStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED"
+}
+
 export enum MessageStatus {
   SENT = "SENT",
   DELIVERED = "DELIVERED",
@@ -9,6 +15,68 @@ export enum MessageStatus {
 }
 
 
+
+type EagerFriendship = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Friendship, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly userID: string;
+  readonly myID?: string | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+type LazyFriendship = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Friendship, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly userID: string;
+  readonly myID?: string | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+export declare type Friendship = LazyLoading extends LazyLoadingDisabled ? EagerFriendship : LazyFriendship
+
+export declare const Friendship: (new (init: ModelInit<Friendship>) => Friendship) & {
+  copyOf(source: Friendship, mutator: (draft: MutableModel<Friendship>) => MutableModel<Friendship> | void): Friendship;
+}
+
+type EagerFriendRequest = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<FriendRequest, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly senderID?: string | null;
+  readonly recipientID?: string | null;
+  readonly status?: FriendRequestStatus | keyof typeof FriendRequestStatus | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+type LazyFriendRequest = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<FriendRequest, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly senderID?: string | null;
+  readonly recipientID?: string | null;
+  readonly status?: FriendRequestStatus | keyof typeof FriendRequestStatus | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+export declare type FriendRequest = LazyLoading extends LazyLoadingDisabled ? EagerFriendRequest : LazyFriendRequest
+
+export declare const FriendRequest: (new (init: ModelInit<FriendRequest>) => FriendRequest) & {
+  copyOf(source: FriendRequest, mutator: (draft: MutableModel<FriendRequest>) => MutableModel<FriendRequest> | void): FriendRequest;
+}
 
 type EagerChatRoomBanship = {
   readonly [__modelMeta__]: {
@@ -207,6 +275,8 @@ type EagerUser = {
   readonly adminChatRooms?: (ChatRoomAdminship | null)[] | null;
   readonly memberChatRooms?: (ChatRoomMembership | null)[] | null;
   readonly banChatRooms?: (ChatRoomBanship | null)[] | null;
+  readonly Friendships?: (Friendship | null)[] | null;
+  readonly Signature?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -228,6 +298,8 @@ type LazyUser = {
   readonly adminChatRooms: AsyncCollection<ChatRoomAdminship>;
   readonly memberChatRooms: AsyncCollection<ChatRoomMembership>;
   readonly banChatRooms: AsyncCollection<ChatRoomBanship>;
+  readonly Friendships: AsyncCollection<Friendship>;
+  readonly Signature?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
