@@ -1,3 +1,9 @@
+type Images @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  photoUri: String
+}
+
 enum FriendRequestStatus {
   PENDING
   ACCEPTED
@@ -81,6 +87,11 @@ type User @model @auth(rules: [{allow: public}]) {
   banChatRooms: [ChatRoomBanship] @hasMany(indexName: "byUser", fields: ["id"])
   Friendships: [Friendship] @hasMany(indexName: "byUser", fields: ["id"])
   Signature: String
+  age: Int
+  country: String
+  views: Int
+  interests: String
+  Images: [Images] @hasMany(indexName: "byUser", fields: ["id"])
 }
 
 type Message @model @auth(rules: [{allow: public}]) {

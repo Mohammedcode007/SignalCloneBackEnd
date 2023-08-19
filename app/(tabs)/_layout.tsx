@@ -33,7 +33,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: () => <HomeHeader />,
+          headerTitle: () => <RoomsHeader />,
           tabBarIcon: ({ color }) => <Entypo name="chat" size={24} color={color} />,
           // headerRight: () => (
           //   <Link href="/modal" asChild>
@@ -51,25 +51,13 @@ export default function TabLayout() {
           // ),
         }}
       />
+   
        <Tabs.Screen
         name="Friends"
         options={{
           headerTitle: () => <RoomsHeader />,
           tabBarIcon: ({ color }) => <FontAwesome5 name="user-friends" size={24} color={color} /> ,
-          // headerRight: () => (
-          //   <Link href="/modal" asChild>
-          //     <Pressable>
-          //       {({ pressed }) => (
-          //         <FontAwesome
-          //           name="info-circle"
-          //           size={25}
-          //           color={Colors[colorScheme ?? 'light'].text}
-          //           style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-          //         />
-          //       )}
-          //     </Pressable>
-          //   </Link>
-          // ),
+         
         }}
       />
     <Tabs.Screen
@@ -77,23 +65,17 @@ export default function TabLayout() {
         options={{
           headerTitle: () => <RoomsHeader />,
           tabBarIcon: ({ color }) => <FontAwesome name="group" size={24} color={color} />,
-          // headerRight: () => (
-          //   <Link href="/modal" asChild>
-          //     <Pressable>
-          //       {({ pressed }) => (
-          //         <FontAwesome
-          //           name="info-circle"
-          //           size={25}
-          //           color={Colors[colorScheme ?? 'light'].text}
-          //           style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-          //         />
-          //       )}
-          //     </Pressable>
-          //   </Link>
-          // ),
+          
         }}
       />
-      
+        <Tabs.Screen
+        name="setting"
+        options={{
+          headerTitle: () => <RoomsHeader />,
+          tabBarIcon: ({ color }) => <Ionicons name="settings" size={24} color={color} />,
+          
+        }}
+      />
     </Tabs>
   );
 }
@@ -130,120 +112,6 @@ const HomeHeader = () => {
 };
 
 
-// const RoomsHeader = () => {
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const [roomName, setRoomName] = useState('');
-
-
-//   const { signOut } = useAuthenticator();
-//   const handleSignOut = async () => {
-//     try {
-//       // Clear the DataStore cache and local storage
-//       await DataStore.clear();
-//     } catch (error) {
-//       console.error('Error clearing DataStore:', error);
-//     }
-//     // Call the signOut function
-//     signOut();
-//   };
-//   const {width} = useWindowDimensions()
-//   const navigation = useNavigation();
-
-//   const createChatRoom = async (roomName: any) => {
-//     try {
-
-//       const authUser = await Auth.currentAuthenticatedUser();
-//       const dbUser = await DataStore.query(User, authUser.attributes.sub);
-
-//       if (!dbUser) {
-//         console.log(`User with ID ${dbUser?.id} not found.`);
-//         return;
-//       }
-//       console.log(roomName);
-      
-//       // Create a new chat room using the DataStore
-//       const newChatRoom = await DataStore.save(new ChatRoom({ 
-//       isRoom:true,
-//       Creator:dbUser,
-//       name:roomName
-//       }));
-  
-//       console.log('Chat room created:', newChatRoom);
-//       setRoomName("")
-//       setModalVisible(false)
-//       if (newChatRoom) {
-//         const savedata=    await DataStore.save(new ChatRoomUser({
-//               user: dbUser,
-//               chatRoom: newChatRoom,
-    
-//             }));
-//             if(savedata){
-//               navigation.navigate('ChatRoomScreen', { id: newChatRoom.id });
-    
-//             }
-    
-//           }
-    
-//       return newChatRoom;
-//     } catch (error) {
-//       console.error('Error creating chat room:', error);
-//       return null;
-//     }
-//   };
-//   return (
-//     <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',width:'100%'}}>
-//       <Image source={{uri:'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/jeff.jpeg'}}
-//       style={{width:30,height:30,borderRadius:30}}
-//       />
-//       {/* <AntDesign name="setting" size={24} color="black" /> */}
-//       <Text style={{flex:1,textAlign:'center',fontWeight:'bold'}}>Rooms</Text>
-//       <Pressable    onPress={() => setModalVisible(true)}>
-
-//       <AntDesign name="plus" size={24} color="black" style={{marginRight:15}} />
-
-//       </Pressable>
-//       <EvilIcons name="search" size={24} color="black" style={{marginRight:15}} />
-//       <Ionicons name="notifications" size={20} color="black" style={{marginRight:15}} />
-//             <Pressable onPress={handleSignOut}>
-//       <AntDesign name="logout" size={17} color="black" style={{marginHorizontal:15}} />
-
-//       </Pressable>
-//       <Modal
-//         animationType="slide"
-//         transparent={true}
-//         visible={modalVisible}
-//         onRequestClose={() => {
-//           Alert.alert('Modal has been closed.');
-//           setModalVisible(!modalVisible);
-//         }}>
-//         <View style={styles.centeredView}>
-//           <View style={styles.modalView}>
-//             <Text style={styles.modalText}>Create Room!</Text>
-//             <TextInput
-//             style={styles.input}
-//             placeholder="Name of room"
-//             value={roomName}
-//             onChangeText={setRoomName}
-//           />
-//           <View style={{display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-//           <Pressable
-//               style={[styles.button, styles.buttonClose]}
-//               onPress={() => createChatRoom(roomName)}>
-//               <Text style={styles.textStyle}>Create</Text>
-//             </Pressable>
-//             <Pressable
-//               style={[styles.button, styles.buttonClose]}
-//               onPress={() => setModalVisible(!modalVisible)}>
-//               <Text style={styles.textStyle}>Cancel</Text>
-//             </Pressable>
-//           </View>
-           
-//           </View>
-//         </View>
-//       </Modal>
-//     </View>
-//   )
-// };
 
 const styles = StyleSheet.create({
   centeredView: {

@@ -33,7 +33,7 @@ const grey = 'lightgrey';
 const Message: React.FC<MessageProps> = (MessageProps) => {
   const navigation = useNavigation();
 
-  // const isMe = message.user.id === myID;
+  // const isMe = message?.user.id === myID;
   const { message: propMessage } = MessageProps;
   const { setAsMessageReply } = MessageProps;
   const [repliedTo, setRepliedTo] = useState<MessageModel | undefined>(
@@ -101,7 +101,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   const panX = new Animated.Value(0);
 
   useEffect(() => {
-    DataStore.query(User, message.userID).then(setUser);
+    DataStore.query(User, message?.userID).then(setUser);
   }, []);
 
   useEffect(() => {
@@ -109,7 +109,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   }, [propMessage]);
   useEffect(() => {
     if (message?.replyToMessageID) {
-      DataStore.query(MessageModel, message.replyToMessageID).then(
+      DataStore.query(MessageModel, message?.replyToMessageID).then(
         setRepliedTo
       );
     }
@@ -132,7 +132,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
 
 
   useEffect(() => {
-    const subscription = DataStore.observe(MessageModel, message.id).subscribe(
+    const subscription = DataStore.observe(MessageModel, message?.id).subscribe(
       (msg) => {
         if (msg.model === MessageModel) {
           if (msg.opType === "UPDATE") {
@@ -162,13 +162,13 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
     checkIfMe();
   }, [user]);
   useEffect(() => {
-    if (message.audio) {
-      Storage.get(message.audio).then(setSoundURI);
+    if (message?.audio) {
+      Storage.get(message?.audio).then(setSoundURI);
     }
   }, [message]);
 
   const setAsRead = async () => {
-    if (isMe === false && message.status !== "READ") {
+    if (isMe === false && message?.status !== "READ") {
       await DataStore.save(
         MessageModel.copyOf(message, (updated) => {
           updated.status = "READ";
@@ -738,10 +738,10 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
 
                       {repliedTo && <MessageReply message={repliedTo} />}
 
-                      {message.image && (
-                        <View style={{ marginBottom: message.content ? 10 : 0 }}>
+                      {message?.image && (
+                        <View style={{ marginBottom: message?.content ? 10 : 0 }}>
                           <S3Image
-                            imgKey={message.image}
+                            imgKey={message?.image}
                             style={{ width: width * 0.65, aspectRatio: 4 / 3 }}
                             resizeMode="contain"
                           />
@@ -750,17 +750,17 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
                       {soundURI && <AudioPlayer soundURI={soundURI} />}
 
                       <Text style={{ color: 'black' }}>
-                        {isDeleted ? "message deleted" : message.content}
+                        {isDeleted ? "message deleted" : message?.content}
 
 
                       </Text>
 
                     </View>
 
-                    {isMe && !!message.status && message.status !== "SENT" && (
+                    {isMe && !!message?.status && message?.status !== "SENT" && (
                       <Ionicons
                         name={
-                          message.status === "DELIVERED" ? "checkmark" : "checkmark-done"
+                          message?.status === "DELIVERED" ? "checkmark" : "checkmark-done"
                         }
                         size={16}
                         color="gray"

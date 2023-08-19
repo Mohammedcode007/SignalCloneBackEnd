@@ -80,7 +80,7 @@ function RootLayoutNav() {
       ) {
         // set the message status to delivered
         DataStore.save(
-          Message.copyOf(data.element, (updated) => {
+          Message?.copyOf(data.element, (updated) => {
             updated.status = "DELIVERED";
           })
         );
@@ -150,6 +150,11 @@ function RootLayoutNav() {
             headerShown: false,
             headerTitle: () => <ChatRoomHeader />,
           }} />
+           <Stack.Screen name="ProfileScreen" options={{
+            headerShown: true,
+
+          }} />
+          
           <Stack.Screen name="GroupInfoScreen" options={{
             headerShown: true,
 

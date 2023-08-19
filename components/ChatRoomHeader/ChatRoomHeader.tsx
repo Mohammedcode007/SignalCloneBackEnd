@@ -118,6 +118,8 @@ const ChatRoomHeader = ({ id }) => {
     }
   };
 
+ 
+
   const isGroup = allUsers.length > 2;
   return (
     <SafeAreaView style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%' }}>

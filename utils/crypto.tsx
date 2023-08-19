@@ -29,8 +29,8 @@ export const encrypt = (secretOrSharedKey, json, key) => {
     : box.after(messageUint8, nonce, secretOrSharedKey);
 
   const fullMessage = new Uint8Array(nonce.length + encrypted.length);
-  fullMessage.set(nonce);
-  fullMessage.set(encrypted, nonce.length);
+  fullmessage?.set(nonce);
+  fullmessage?.set(encrypted, nonce.length);
 
   const base64FullMessage = encodeBase64(fullMessage);
   return base64FullMessage;

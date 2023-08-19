@@ -111,16 +111,16 @@ const ChatRoomScreen = () => {
     const fetchedMessages = await DataStore.query(
       MessageModel,
       (message) =>
-        message.chatroomID.eq(chatRoom?.id),
+        message?.chatroomID.eq(chatRoom?.id),
       {
-        sort: (message) => message.createdAt(SortDirection.DESCENDING),
+        sort: (message) => message?.createdAt(SortDirection.DESCENDING),
       }
     );
 
 
     const filterMessagesAfterTime = (messages, userIdFilter) => {
 
-      return messages.filter((message) => message.createdAt > userIdFilter.createdAt);
+      return messages.filter((message) => message?.createdAt > userIdFilter.createdAt);
     };
 
 
@@ -151,9 +151,9 @@ const ChatRoomScreen = () => {
 
     const fetchedMessages = await DataStore.query(
       MessageModel,
-      (message) => message.chatroomID.eq(chatRoom?.id),
+      (message) => message?.chatroomID.eq(chatRoom?.id),
       {
-        sort: (message) => message.createdAt(SortDirection.DESCENDING),
+        sort: (message) => message?.createdAt(SortDirection.DESCENDING),
       } // Use dot notation and eq operator
     );
     console.log(fetchedMessages, "fetchedMessages");

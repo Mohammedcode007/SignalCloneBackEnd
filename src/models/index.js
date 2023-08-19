@@ -14,9 +14,10 @@ const MessageStatus = {
   "READ": "READ"
 };
 
-const { Friendship, FriendRequest, ChatRoomBanship, ChatRoomMembership, ChatRoomAdminship, ChatRoomOwnership, ChatRoom, User, Message, ChatRoomUser } = initSchema(schema);
+const { Images, Friendship, FriendRequest, ChatRoomBanship, ChatRoomMembership, ChatRoomAdminship, ChatRoomOwnership, ChatRoom, User, Message, ChatRoomUser } = initSchema(schema);
 
 export {
+  Images,
   Friendship,
   FriendRequest,
   ChatRoomBanship,

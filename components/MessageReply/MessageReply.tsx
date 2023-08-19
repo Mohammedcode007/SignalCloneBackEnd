@@ -30,7 +30,7 @@ const MessageReply = (props) => {
   const { width } = useWindowDimensions();
 
   useEffect(() => {
-    DataStore.query(User, message.userID).then(setUser);
+    DataStore.query(User, message?.userID).then(setUser);
   }, []);
 
   useEffect(() => {
@@ -38,8 +38,8 @@ const MessageReply = (props) => {
   }, [propMessage]);
 
   useEffect(() => {
-    if (message.audio) {
-      Storage.get(message.audio).then(setSoundURI);
+    if (message?.audio) {
+      Storage.get(message?.audio).then(setSoundURI);
     }
   }, [message]);
 
@@ -67,26 +67,26 @@ const MessageReply = (props) => {
       ]}
     >
       <View style={styles.row}>
-        {message.image && (
-          <View style={{ marginBottom: message.content ? 10 : 0 }}>
+        {message?.image && (
+          <View style={{ marginBottom: message?.content ? 10 : 0 }}>
             <S3Image
-              imgKey={message.image}
+              imgKey={message?.image}
               style={{ width: width * 0.65, aspectRatio: 4 / 3 }}
               resizeMode="contain"
             />
           </View>
         )}
         {soundURI && <AudioPlayer soundURI={soundURI} />}
-        {!!message.content && (
+        {!!message?.content && (
           <Text style={{ color: isMe ? "black" : "white" }}>
-            {message.content}
+            {message?.content}
           </Text>
         )}
 
-        {isMe && !!message.status && message.status !== "SENT" && (
+        {isMe && !!message?.status && message?.status !== "SENT" && (
           <Ionicons
             name={
-              message.status === "DELIVERED" ? "checkmark" : "checkmark-done"
+              message?.status === "DELIVERED" ? "checkmark" : "checkmark-done"
             }
             size={16}
             color="gray"

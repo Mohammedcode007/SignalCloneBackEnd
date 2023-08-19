@@ -16,6 +16,36 @@ export enum MessageStatus {
 
 
 
+type EagerImages = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Images, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly userID: string;
+  readonly photoUri?: string | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+type LazyImages = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Images, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly userID: string;
+  readonly photoUri?: string | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+export declare type Images = LazyLoading extends LazyLoadingDisabled ? EagerImages : LazyImages
+
+export declare const Images: (new (init: ModelInit<Images>) => Images) & {
+  copyOf(source: Images, mutator: (draft: MutableModel<Images>) => MutableModel<Images> | void): Images;
+}
+
 type EagerFriendship = {
   readonly [__modelMeta__]: {
     identifier: ManagedIdentifier<Friendship, 'id'>;
@@ -277,6 +307,11 @@ type EagerUser = {
   readonly banChatRooms?: (ChatRoomBanship | null)[] | null;
   readonly Friendships?: (Friendship | null)[] | null;
   readonly Signature?: string | null;
+  readonly age?: number | null;
+  readonly country?: string | null;
+  readonly views?: number | null;
+  readonly interests?: string | null;
+  readonly Images?: (Images | null)[] | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -300,6 +335,11 @@ type LazyUser = {
   readonly banChatRooms: AsyncCollection<ChatRoomBanship>;
   readonly Friendships: AsyncCollection<Friendship>;
   readonly Signature?: string | null;
+  readonly age?: number | null;
+  readonly country?: string | null;
+  readonly views?: number | null;
+  readonly interests?: string | null;
+  readonly Images: AsyncCollection<Images>;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }

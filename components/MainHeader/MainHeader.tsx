@@ -127,11 +127,20 @@ const RoomsHeader = () => {
     };
 
   }, []);
+  const openProfile =async () => {
+    const authUser = await Auth.currentAuthenticatedUser();
+    const dbUser = await DataStore.query(User, authUser.attributes.sub);
+    // redirect to info page
+    navigation.navigate("ProfileScreen",{id:dbUser?.id});
+  };
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+      <TouchableOpacity onPress={openProfile}>
       <Image source={{ uri: 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/jeff.jpeg' }}
         style={{ width: 30, height: 30, borderRadius: 30 }}
       />
+      </TouchableOpacity>
+      
       {/* <AntDesign name="setting" size={24} color="black" /> */}
       <Text style={{ flex: 1, textAlign: 'center', fontWeight: 'bold' }}>Rooms</Text>
       <Pressable onPress={() => setModalVisible(true)}>
