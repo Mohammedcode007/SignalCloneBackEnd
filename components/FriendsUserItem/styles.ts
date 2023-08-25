@@ -8,6 +8,12 @@ export const styles = StyleSheet.create({
       borderBottomWidth:0.5
 
     },
+    selected: {
+      backgroundColor: 'red', // Change to the desired selected color
+    },
+    hovered: {
+      backgroundColor: 'yellow', // Change to the desired hover color
+    },
     RightContainer: {
       flex:1,
   justifyContent:'center',

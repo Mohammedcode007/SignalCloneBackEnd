@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "test",
-    "slug": "test",
+    "slug": "chat",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mohammed007007.test"
     },
     "android": {
       "adaptiveIcon": {
@@ -31,8 +32,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "ce7a0fa6-1941-4d1b-a810-fe57a53bfeec"
+        "projectId": "cf4f3090-4077-42e8-89bb-d8a36a9ac4ad"
       }
-    }
+    },
+    "owner": "mohammed007"
   }
 }

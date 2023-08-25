@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, StyleSheet, View, ActivityIndicator, Pressable, Text, Alert } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import EditScreenInfo from '../../components/EditScreenInfo';
+import { TouchableHighlight } from 'react-native';
 
 import ChatRoomItem from '../../components/ChatRoomItem';
 import chatRoomDummy from "../../assets/dummy-data/ChatRooms"
@@ -16,6 +17,7 @@ import { Auth } from 'aws-amplify';
 import { useDispatch } from 'react-redux';
 import { addTonotify } from '../../redux/mainSlice';
 import FriendsUserItem from '../../components/FriendsUserItem/FriendsUserItem';
+import { COLORS } from '../../utils/COLORS';
 
 export default function TabTwoScreen({ route }) {
   const [users, setUsers] = useState<User[]>([]);
@@ -23,7 +25,7 @@ export default function TabTwoScreen({ route }) {
   const dispatch = useDispatch();
 
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
-  const [isNewGroup, setIsNewGroup] = useState(false);
+  const [isNewGroup, setIsNewGroup] = useState(true);
   useEffect(() => {
     DataStore.query(User).then(setUsers);
   }, []);
@@ -117,23 +119,69 @@ export default function TabTwoScreen({ route }) {
   };
 
   const onUserPress = async (user) => {
-    if (isNewGroup) {
-      if (isUserSelected(user)) {
-        // remove it from selected
-        setSelectedUsers(
-          selectedUsers.filter((selectedUser) => selectedUser.id !== user.id)
-        );
-      } else {
-        setSelectedUsers([...selectedUsers, user]);
+
+    const authUser = await Auth.currentAuthenticatedUser();
+    const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+    if (dbUser, user) {
+      const chatroomuser = await (await DataStore.query(ChatRoomUser)).filter((item) => {
+        return (
+          item?.userId === dbUser?.id || item?.userId === user?.id
+        )
+      })
+      console.log(chatroomuser, "chatroomuser");
+
+      const duplicatedChatRoomIds = chatroomuser.filter((item, index, self) => {
+        // استخدام indexOf للتحقق إذا كانت هذه العنصر مكررة مسبقًا في المصفوفة
+        return self.findIndex((el) => el.chatRoomId === item.chatRoomId) !== index;
+      });
+
+      console.log(duplicatedChatRoomIds, "duplicatedChatRoomIds");
+
+      const chatRoomId = await Promise.all(
+        duplicatedChatRoomIds.map(async (i) => {
+          return i?.chatRoomId;
+        })
+      )
+      console.log(chatRoomId, "chatRoomId");
+
+      if (chatRoomId) {
+        const chatroomdetails = await Promise.all(chatRoomId.map(async (i) => {
+          return (
+            await DataStore.query(ChatRoom, i)
+          )
+        }))
+        console.log(chatroomdetails, "chatroomdetails");
+
+        if (chatroomdetails) {
+          const filterRoom = await chatroomdetails.filter((i) => {
+            return (
+              i?.isRoom === null
+            )
+          })
+          console.log(filterRoom, "filterRoom");
+          if (filterRoom.length > 0) {
+            navigation.navigate("ChatRoomScreen", { id: filterRoom[0].id });
+
+
+          } else {
+            await createChatRoom([user]);
+
+          }
+
+        }
+
+
       }
-    } else {
-      await createChatRoom([user]);
+
     }
+
+
+
+
   };
 
-  const saveGroup = async () => {
-    await createChatRoom(selectedUsers);
-  };
+
 
   const isFocused = useIsFocused(); // Hook to determine if the screen is focused
 
@@ -191,23 +239,16 @@ export default function TabTwoScreen({ route }) {
         data={friends}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleItemPress(item)}>
-            <FriendsUserItem oneUserItem={item} onPress={() => onUserPress(item)}
-              isSelected={isNewGroup ? isUserSelected(item) : undefined} />
-          </TouchableOpacity>
+
+          <FriendsUserItem oneUserItem={item} onPress={() => onUserPress(item)}
+            isSelected={isNewGroup ? isUserSelected(item) : undefined} />
         )}
         showsHorizontalScrollIndicator={false}
-        ListHeaderComponent={() => (
-          <NewGroupButton onPress={() => setIsNewGroup(!isNewGroup)} />
-        )}
+      // ListHeaderComponent={() => (
+      //   <NewGroupButton onPress={() => setIsNewGroup(!isNewGroup)} />
+      // )}
       />
-      {isNewGroup && (
-        <Pressable style={styles.button} onPress={saveGroup}>
-          <Text style={styles.buttonText}>
-            Save group ({selectedUsers.length})
-          </Text>
-        </Pressable>
-      )}
+
     </View>
   );
 }
@@ -216,6 +257,7 @@ export default function TabTwoScreen({ route }) {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
+    backgroundColor: 'white'
   },
   loadingContainer: {
     flex: 1,

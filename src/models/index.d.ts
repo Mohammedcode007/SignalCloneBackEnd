@@ -312,6 +312,8 @@ type EagerUser = {
   readonly views?: number | null;
   readonly interests?: string | null;
   readonly Images?: (Images | null)[] | null;
+  readonly imageCover?: string | null;
+  readonly gendar?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -340,6 +342,8 @@ type LazyUser = {
   readonly views?: number | null;
   readonly interests?: string | null;
   readonly Images: AsyncCollection<Images>;
+  readonly imageCover?: string | null;
+  readonly gendar?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }

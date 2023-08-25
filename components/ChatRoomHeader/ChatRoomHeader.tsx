@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Text, View, TouchableOpacity, useWindowDimensions, SafeAreaView, Pressable, Modal, StyleSheet, TextInput, FlatList, ScrollView } from 'react-native';
+import { Image, Text, View, TouchableOpacity, useWindowDimensions, SafeAreaView, Pressable, Modal, StyleSheet, TextInput, FlatList, ScrollView, Alert } from 'react-native';
 import { Ionicons, Feather, Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Auth, DataStore } from 'aws-amplify';
 import { ChatRoom, ChatRoomUser, User } from '../../src/models';
 import moment from 'moment';
 import UserItem from '../UserItem/UserItem';
+import Message from '../Message/Message';
+import { Message as MessageModel } from "../../src/models";
 
 const ChatRoomHeader = ({ id }) => {
   const { width } = useWindowDimensions()
@@ -13,6 +15,7 @@ const ChatRoomHeader = ({ id }) => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | undefined>(undefined);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [newWelcomeMessage, setNewWelcomeMessage] = useState('');
+  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
 
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [isDropdownVisibleuser, setDropdownVisibleuser] = useState(false);
@@ -65,6 +68,8 @@ const ChatRoomHeader = ({ id }) => {
     fetchChatRoom()
     fetchUsers();
   }, [id]);
+
+
   // في دالة getLastOnlineText
   const getLastOnlineText = () => {
     if (!user?.lastOnlineAt) {
@@ -84,9 +89,12 @@ const ChatRoomHeader = ({ id }) => {
     return allUsers.map((user) => user?.name).join(", ");
   };
 
-  const openInfo = () => {
-    // redirect to info page
-    navigation.navigate("GroupInfoScreen", { id });
+  const openInfoModal = () => {
+    setInfoModalVisible(true);
+  };
+  
+  const closeInfoModal = () => {
+    setInfoModalVisible(false);
   };
 
   const openSetting = () => {
@@ -118,31 +126,106 @@ const ChatRoomHeader = ({ id }) => {
     }
   };
 
- 
-
+  const LeaveRoom = async ()=>{
+    try {
+      
+      
+    const authUser = await Auth.currentAuthenticatedUser();
+    const loggedInUserId = authUser.attributes.sub;
+    const dbUser = await DataStore.query(User, loggedInUserId);
+  
+    if (!dbUser) {
+      Alert.alert("There was an error leaving the group");
+      return;
+    }
+  
+    if (dbUser) {
+      const chatRoomUserToDelete = await (
+        await DataStore.query(ChatRoomUser)
+      ).filter(
+        (cru) => cru.chatRoomId === chatRoom?.id && cru?.userId === dbUser?.id
+      );
+  
+        if (chatRoomUserToDelete.length > 0) {
+               
+   
+      const leaving =     await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
+          setAllUsers(allUsers.filter((u) => u?.id !== dbUser?.id));
+          if(leaving){
+            console.log(leaving);
+            
+            sendExitMessage();
+  
+          }
+     }}
+  
+    
+    } catch (error) {
+      
+    }
+  }
+  const sendExitMessage = async () => {
+    if (!chatRoom) {
+      return;
+    }
+  
+    // احصل على معلومات المستخدم المصادق عليه
+    const authUser = await Auth.currentAuthenticatedUser();
+    const dbUser = await DataStore.query(User, authUser.attributes.sub);
+  
+    // أنشئ محتوى رسالة الخروج
+  if(dbUser){
+  
+     await DataStore.save(
+      new MessageModel({
+        content: `${dbUser.name} قد غادر الغرفة.`,
+        userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+        chatroomID: chatRoom.id,
+      })
+    );
+  
+  }
+  
+  };
   const isGroup = allUsers.length > 2;
   return (
     <SafeAreaView style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%' }}>
       <TouchableOpacity onPress={handleGoBack}>
-        <Feather name="skip-back" size={20} color="black" />
+        <Feather name="skip-back" size={20} color="black" style={{marginHorizontal:20}}/>
 
       </TouchableOpacity >
+{
+  chatRoom?.isRoom ? null : (
+    <Image
+    source={{
+      uri:  user?.imageUri,
+    }}
+    style={{ width: 30, height: 30, borderRadius: 30 }}
+  />
+  )
+}
+<Modal
+  visible={isInfoModalVisible}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={closeInfoModal}
+>
+<View style={styles.modalContainer}>
+    <Text>{chatRoom?.WelcomeMessage}</Text>
+  </View>
+  {/* ... المحتوى الذي تريد تضمينه في نافذة الـ Modal ... */}
+</Modal>
 
-      <Image
-        source={{
-          uri: chatRoom?.imageUri || user?.imageUri,
-        }}
-        style={{ width: 30, height: 30, borderRadius: 30 }}
-      />
-      <Pressable onPress={openInfo} style={{ flex: 1, marginLeft: 10 }}>
+     
+      <Pressable onPress={openInfoModal } style={{ flex: 1, marginLeft: 10 }}>
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={{ fontWeight: "bold" }}>
+          <Text style={{ fontWeight: "bold",textAlign:'left' }}>
             {chatRoom?.name || user?.name}
           </Text>
           {
             chatRoom?.isRoom === true ? (
 
-              <Text style={{ textAlign: 'center' }}>
+              <Text style={{ textAlign: 'center' }} numberOfLines={1}>
                 {chatRoom?.WelcomeMessage}
               </Text>
 
@@ -155,11 +238,15 @@ const ChatRoomHeader = ({ id }) => {
 
         </View>
       </Pressable>
+{
+  chatRoom?.isRoom === true ? (
+    <TouchableOpacity onPress={toggleDropdownuser}>
 
-      <TouchableOpacity onPress={toggleDropdownuser}>
-
-      <Ionicons name="people" size={24} color="black" style={{ marginRight: 15 }} />
-      </TouchableOpacity>
+    <Ionicons name="people" size={24} color="black" style={{ marginRight: 15 }} />
+    </TouchableOpacity>
+  ):null
+}
+     
 
       <TouchableOpacity onPress={toggleDropdown}>
         <Entypo name="dots-three-vertical" size={20} color="black" style={{ marginRight: 15 }} />
@@ -176,18 +263,31 @@ const ChatRoomHeader = ({ id }) => {
           onPress={toggleDropdown}      // Close the modal when the background is pressed
 
         >
-          <View style={styles.dropdownContainer}>
-            <TouchableOpacity onPress={toggleWelcomeMessageModal} style={styles.dropdownItem}>
-              <Text>Welcome message</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openSetting} style={styles.dropdownItem}>
-              <Text>Settings</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text>Leave room</Text>
-            </TouchableOpacity>
-            {/* Add more dropdown items as needed */}
-          </View>
+          {
+            chatRoom?.isRoom ? (
+              <View style={styles.dropdownContainer}>
+              <TouchableOpacity onPress={toggleWelcomeMessageModal} style={styles.dropdownItem}>
+                <Text>Welcome message</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={openSetting} style={styles.dropdownItem}>
+                <Text>Settings</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.dropdownItem} onPress={LeaveRoom}>
+                <Text>Leave room</Text>
+              </TouchableOpacity>
+              {/* Add more dropdown items as needed */}
+            </View>
+            ):(
+              <View style={styles.dropdownContainer}>
+              <TouchableOpacity onPress={toggleWelcomeMessageModal} style={styles.dropdownItem}>
+                <Text>block</Text>
+              </TouchableOpacity>
+         
+              {/* Add more dropdown items as needed */}
+            </View>
+            )
+          }
+         
         </TouchableOpacity>
 
       </Modal>
@@ -289,7 +389,7 @@ const styles = StyleSheet.create({
   
   inputField: {
     width: '80%',
-    height: 40,
+    height: 100,
     borderBottomWidth: 1,
     borderColor: 'gray',
     marginBottom: 20,

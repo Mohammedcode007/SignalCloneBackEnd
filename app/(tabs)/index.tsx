@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Image, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
+import { FlatList, TouchableHighlight, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import EditScreenInfo from '../../components/EditScreenInfo';
 import { Text, View } from '../../components/Themed';
@@ -8,6 +8,7 @@ import chatRoomDummy from "../../assets/dummy-data/ChatRooms"
 import { Auth, DataStore } from 'aws-amplify';
 import { ChatRoom, ChatRoomUser, Message } from '../../src/models';
 import { AntDesign } from '@expo/vector-icons';
+import { COLORS } from '../../utils/COLORS';
 
 export default function TabOneScreen() {
   const chatRoomData = chatRoomDummy;
@@ -46,6 +47,13 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     fetchChatRoom();
+    const subscription = DataStore.observe(ChatRoomUser).subscribe(() => {
+      fetchChatRoom();
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleItemPress = (item) => {
@@ -55,54 +63,112 @@ export default function TabOneScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedChatRoom, setSelectedChatRoom] = useState(null);
   
-  // ... باقي الكود
-  
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
   const handleItemLongPress = (item) => {
     setSelectedChatRoom(item); // تخزين العنصر الحالي للذي تم الضغط المطول عليه
     setIsModalVisible(true); // عرض النموذج
   };
-  const handleBackgroundPress = () => {
-    // عند الضغط على أي مكان على الشاشة، قم بإغلاق النموذج
-    setIsModalVisible(false);
-  };
-  return (
-    <TouchableWithoutFeedback onPress={handleBackgroundPress}>
+  const deleteChatRoom = async (chatRoomId) => {
+console.log(chatRoomId,"chatRoomId");
 
+    try {
+      
+      // Fetch the chat room you want to delete
+      const chatRoomToDelete = await DataStore.query(ChatRoom, chatRoomId);
+  
+      // Delete the chat room
+      if (chatRoomToDelete) {
+       const data = await DataStore.delete(chatRoomToDelete);
+       if(data)
+       {
+        setIsModalVisible(false); // عرض النموذج
+        console.log('Chat room deleted successfully.');
+
+       }
+        // Perform any other necessary actions after deletion
+      }
+    } catch (error) {
+      console.error('Error deleting chat room:', error);
+    }
+  };
+  
+  const handleDelete = async (chatRoomId) => {
+    try {
+      await deleteChatRoom(chatRoomId);
+      // تحديث القائمة بعد حذف المحادثة
+      setChatRoom(prevChatRoom => prevChatRoom.filter(room => room.id !== chatRoomId));
+    } catch (error) {
+      console.log('Error deleting chat room:', error);
+    }
+  };
+
+ 
+  
+  return (
     <View style={styles.page}>
       <FlatList
         data={chatRoom}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleItemPress(item)} onLongPress={() => handleItemLongPress(item)}>
+          <TouchableHighlight
+            activeOpacity={0.6}
+            underlayColor={COLORS.hover}
+            onPress={() => handleItemPress(item)}
+            onLongPress={() => handleItemLongPress(item)} // استخدام onPressIn بدلاً من onLongPress
+          >
             <View>
               <ChatRoomItem chatRoomDataItem={item} />
             </View>
-          </TouchableOpacity>
+          </TouchableHighlight>
         )}
         showsHorizontalScrollIndicator={false}
       />
-       <Modal
+      
+      <Modal
         visible={isModalVisible}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setIsModalVisible(false)}
-        
+        onRequestClose={closeModal}
       >
-        <View style={{backgroundColor:'#d0ddf2',display:'flex',alignItems:'center',justifyContent:'center',width:130,height:60,borderRadius:20,position:'absolute',bottom:100,left:'33.333%'}}>
-        <AntDesign name="delete" size={20} color="black" />
-        <Text style={{color:'black'}}>delete</Text>
-
-        </View>
-        {/* ... استخدام مكون النموذج هنا مع selectedChatRoom */}
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity >
+              <TouchableOpacity onPress={() => handleDelete (selectedChatRoom?.id)} style={styles.deleteButton}>
+                <AntDesign name="delete" size={20} color="black" />
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
-    </TouchableWithoutFeedback>
-
   );
 }
 
 const styles = StyleSheet.create({
   page: {
     flex: 1,
+  },
+  modalContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  deleteButton: {
+    backgroundColor: '#d0ddf2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 130,
+    height: 60,
+    borderRadius: 20,
+    position: 'absolute',
+    bottom: 100,
+    left: '33.333%',
+  },
+  deleteText: {
+    color: 'black',
   },
 });

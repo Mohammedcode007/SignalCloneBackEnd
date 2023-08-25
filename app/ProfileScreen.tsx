@@ -4,20 +4,28 @@ import React ,{useState,useEffect}from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { User } from '../src/models';
 import { Auth, DataStore } from 'aws-amplify';
+import CountryPicker from 'react-native-country-picker-modal';
 
 const ProfileScreen = () => {
     const route = useRoute();
     const [user,setuser] =useState()
     const [pageViews, setPageViews] = useState(0);
-    console.log(pageViews,"kkkkkkkkkkk");
+    const [selectedCountry, setSelectedCountry] = useState(user?.country); // اختيار قيمة اولية للدولة ولتكن Egypt
+    const handleCountrySelect = (country) => {
+        setSelectedCountry(country?.cca2)
+    };
+    console.log(user,"kkkkkkkkkkk");
 
 useEffect(()=>{
 if(route?.params?.id){
+    console.log(route?.params?.id,"route?.params?.id");
+
     const getDetails = async()=>{
         const authUser = await Auth.currentAuthenticatedUser();
-        const dbUser = await DataStore.query(User, authUser.attributes.sub);
+        const dbUser = await DataStore.query(User, route?.params?.id);
         if (dbUser) {
             setuser(dbUser);
+            setSelectedCountry(dbUser?.country)
 
             // Update the views field using copyOf
             // const updatedUser = DataStore.copyOf(dbUser, updated => {
@@ -54,11 +62,24 @@ if(route?.params?.id){
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Image source={require('../assets/images/Cover.jpg')} style={styles.cover} />
+                {
+                    user?.imageCover ? (
+                        <Image source={{uri:user?.imageCover}} style={styles.cover} />
+
+                    ):(                <Image source={require('../assets/images/Cover.jpg')} style={styles.cover} />
+                    )
+                }
                 <View style={styles.curve}></View>
             </View>
             <View style={styles.photoContainer}>
-                <Image source={require('../assets/images/profilePhoto.jpg')} style={styles.profileImage} />
+            {
+                    user?.imageUri ? (
+                        <Image source={{uri:user?.imageUri}} style={styles.profileImage} />
+
+                    ):(                                <Image source={require('../assets/images/manlogo.png')} style={styles.profileImage} />
+
+                    )
+                }
             </View>
             <View style={styles.profileInfo}>
                 <Text style={styles.username}>{user?.name}</Text>
@@ -77,6 +98,37 @@ if(route?.params?.id){
                 <View style={styles.containerCoulmn}>
                     <Text style={styles.number}>{user?.age}</Text>
                     <Text style={styles.text}>Age</Text>
+                </View>
+                <View style={styles.containerCoulmn}>
+                    <Text style={styles.number}>{user?.gendar}</Text>
+                    <Text style={styles.text}>Gender</Text>
+                </View>
+                <View style={styles.containerCoulmn}>
+                <View style={styles.containerSelect}>
+                            {selectedCountry && (
+                                <View style={styles.selectedCountryContainer}>
+                                    <Image
+                                        source={{ uri: `https://www.countryflags.io/${selectedCountry}/flat/64.png` }}
+                                        style={styles.countryFlag}
+                                    />
+                                </View>
+                            )}
+
+                            <CountryPicker
+                                withFilter
+                                withFlagButton={true}
+                                onSelect={handleCountrySelect}
+                                countryCode={selectedCountry}
+                                translation="eng"
+                                flagStyles={{
+                                    borderRadius: 10, // Apply border radius to the flag icon
+                                    borderWidth: 2, // Apply border width to the flag icon
+                                    borderColor: 'blue',
+                                    bottom:0 // Set border color for the flag icon
+                                  }}
+                            />
+                        </View>                
+                            <Text style={styles.text}>country</Text>
                 </View>
             </View>
             <View style={{ width: '100%', alignItems: 'center', display: "flex", justifyContent: 'center', marginTop: 10 }}>
@@ -142,6 +194,17 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '25%',
     },
+    selectedCountryContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+      countryFlag: {
+        width: 25,
+        height: 15,
+      },
+      countryName: {
+        fontSize: 16,
+      },
     profileInfo: {
         marginTop: '20%',
         alignItems: 'center',
@@ -155,6 +218,12 @@ const styles = StyleSheet.create({
     jop: {
         fontSize: 12,
         color: '#242760',
+    },
+    containerSelect: {
+        justifyContent: 'center',
+        alignItems: 'center',
+flexDirection:'row',
+        backgroundColor: '#F5FCFF',
     },
     number: {
         fontSize: 12,

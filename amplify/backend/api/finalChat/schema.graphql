@@ -92,6 +92,8 @@ type User @model @auth(rules: [{allow: public}]) {
   views: Int
   interests: String
   Images: [Images] @hasMany(indexName: "byUser", fields: ["id"])
+  imageCover: String
+  gendar: String
 }
 
 type Message @model @auth(rules: [{allow: public}]) {

@@ -12,6 +12,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { removeFromActive, setexitMessageContent } from '../../redux/mainSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { COLORS } from '../../utils/COLORS';
 
 interface MessageProps {
   message: {
@@ -19,12 +20,13 @@ interface MessageProps {
       id: string;
     };
     content: string;
-    status: string
+    status: string;
+
 
     // Add other properties of the message object if any
   };
   setAsMessageReply: () => void;
-
+  isRoom: any;
 }
 const myID = 'u1'
 const blue = '#3777f0';
@@ -36,6 +38,8 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   // const isMe = message?.user.id === myID;
   const { message: propMessage } = MessageProps;
   const { setAsMessageReply } = MessageProps;
+  const { isRoom } = MessageProps;
+
   const [repliedTo, setRepliedTo] = useState<MessageModel | undefined>(
     undefined
   );
@@ -130,7 +134,12 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   //   return () => subscription.unsubscribe();
   // }, []);
 
+const viewprofile =(userId) =>{
+  console.log(userId,"userId");
+  
+  navigation.navigate("ProfileScreen",{id:userId});
 
+}
   useEffect(() => {
     const subscription = DataStore.observe(MessageModel, message?.id).subscribe(
       (msg) => {
@@ -659,9 +668,12 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
                 )
               }
 
-              <View style={styles.star}>
-                <Entypo name="star" size={20} color={adminColor.includes(user?.id) ? 'blue' : ownerColor.includes(user?.id) ? 'red' : memberColor.includes(user?.id) ? 'green' : 'grey'} />
-              </View>
+              {
+                isRoom === true && (<View style={styles.star}>
+                  <Entypo name="star" size={20} color={adminColor.includes(user?.id) ? 'blue' : ownerColor.includes(user?.id) ? 'red' : memberColor.includes(user?.id) ? 'green' : 'grey'} />
+                </View>)
+              }
+
             </TouchableOpacity>
             <Modal
               visible={isDropdownVisible}
@@ -674,21 +686,41 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
                 onPress={toggleDropdown}      // Close the modal when the background is pressed
               >
                 <View style={styles.dropdownContainer}>
-                  <TouchableOpacity onPress={() => addOwner(user?.id)} style={styles.dropdownItem}>
-                    <Text>Make Owner</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => addAdmin(user?.id)} style={styles.dropdownItem}>
-                    <Text>Make Admin</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => addMemer(user?.id)} style={styles.dropdownItem}>
-                    <Text>Make Member</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => kickuser(user?.id)} style={styles.dropdownItem}>
-                    <Text>Kick</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
-                    <Text>ban</Text>
-                  </TouchableOpacity>
+                  {
+                    isRoom === true ? (
+                      <View>
+                        <TouchableOpacity onPress={() => addOwner(user?.id)} style={styles.dropdownItem}>
+                          <Text>Make Owner</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => addAdmin(user?.id)} style={styles.dropdownItem}>
+                          <Text>Make Admin</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => addMemer(user?.id)} style={styles.dropdownItem}>
+                          <Text>Make Member</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => kickuser(user?.id)} style={styles.dropdownItem}>
+                          <Text>Kick</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
+                          <Text>ban</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
+                          <Text>ViewProfile</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                    ) : (
+                      <View>
+
+                        <TouchableOpacity onPress={() => viewprofile(user?.id)} style={styles.dropdownItem}>
+                          <Text>ViewProfile</Text>
+                        </TouchableOpacity>
+
+                      </View>
+
+                    )
+                  }
+
                   {/* Add more dropdown items as needed */}
                 </View>
               </TouchableOpacity>
@@ -716,9 +748,13 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
                 style={[
                   styles.container,
                   {
-                    backgroundColor: "#D0ECE8",
-                    marginLeft: 2,
-                    marginRight: 2,
+                    backgroundColor: "#EFF3F6",
+                    marginLeft: 0,
+                    marginRight: 0,
+                    borderLeftColor: isMe ? COLORS.primary : '#a832a4',
+                    borderRightColor: !isMe ? COLORS.primary : '',
+
+                    borderLeftWidth: 4,
                     borderTopRightRadius: isMe ? 20 : 0,
                     borderTopLeftRadius: isMe ? 0 : 20,
                     transform: [{ translateX: panX }],
@@ -728,9 +764,21 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
               >
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                   <TouchableOpacity style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }} onPress={openActionMenu}>
-                    <View>
-                      <Text style={{ color: adminColor.includes(user?.id) ? 'blue' : ownerColor.includes(user?.id) ? 'red' : memberColor.includes(user?.id) ? 'green' : 'black' }
-                      }>
+                    <View style={{}}>
+                      <Text
+                        style={{
+                          color: adminColor.includes(user?.id) ?
+                            'blue' : ownerColor.includes(user?.id) ?
+                              'red' : memberColor.includes(user?.id) ?
+                                'green' : 'black',
+                          borderBottomColor: 'grey',
+                          borderBottomWidth: 0.5,
+                          marginBottom: 2,
+                          textAlign: isMe ? 'left' : 'right',
+                          writingDirection: isMe ? 'ltr' : 'rtl' // تحديد اتجاه الكتابة إلى اليمين
+
+                        }
+                        }>
                         {user.name}
 
 
@@ -739,7 +787,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
                       {repliedTo && <MessageReply message={repliedTo} />}
 
                       {message?.image && (
-                        <View style={{ marginBottom: message?.content ? 10 : 0 }}>
+                        <View style={{ marginBottom: message?.content ? 0 : 0 }}>
                           <S3Image
                             imgKey={message?.image}
                             style={{ width: width * 0.65, aspectRatio: 4 / 3 }}
@@ -757,6 +805,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
 
                     </View>
 
+
                     {isMe && !!message?.status && message?.status !== "SENT" && (
                       <Ionicons
                         name={
@@ -764,9 +813,10 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
                         }
                         size={16}
                         color="gray"
-                        style={{ marginHorizontal: 5 }}
+                        style={{ marginHorizontal: 0 }}
                       />
                     )}
+
                   </TouchableOpacity>
                 </View>
 
@@ -791,8 +841,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     maxWidth: '75%',
     alignItems: 'flex-end',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10
   },
   star: {
     position: 'absolute',

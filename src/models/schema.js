@@ -1034,6 +1034,20 @@ export const schema = {
                         ]
                     }
                 },
+                "imageCover": {
+                    "name": "imageCover",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "gendar": {
+                    "name": "gendar",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -1325,5 +1339,5 @@ export const schema = {
     },
     "nonModels": {},
     "codegenVersion": "3.3.6",
-    "version": "e95e9f7641846ecaa900e920afa01534"
+    "version": "d4bc0f6c08b322e4fe9ede5ec8df08b2"
 };

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, TouchableHighlight } from 'react-native';
 import { Text, View } from '../Themed';
 import { styles } from './styles';
 import { ChatRoomUser, User,ChatRoom, Message } from '../../src/models';
 import { Auth, DataStore } from 'aws-amplify';
 import moment from "moment";
+import { COLORS } from '../../utils/COLORS';
 
 interface ChatRoomItemProps {
   chatRoomDataItem: {
@@ -78,6 +79,7 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoomDataItem,index }: C
     
 
   return (
+   
     <View style={styles.container}>
       {
         chatRoomDataItem?.imageUri ? (

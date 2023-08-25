@@ -33,7 +33,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: () => <RoomsHeader />,
+          headerTitle: () => <RoomsHeader title='Chats' />,
           tabBarIcon: ({ color }) => <Entypo name="chat" size={24} color={color} />,
           // headerRight: () => (
           //   <Link href="/modal" asChild>
@@ -55,7 +55,7 @@ export default function TabLayout() {
        <Tabs.Screen
         name="Friends"
         options={{
-          headerTitle: () => <RoomsHeader />,
+          headerTitle: () => <RoomsHeader title='Friends' />,
           tabBarIcon: ({ color }) => <FontAwesome5 name="user-friends" size={24} color={color} /> ,
          
         }}
@@ -63,7 +63,7 @@ export default function TabLayout() {
     <Tabs.Screen
         name="rooms"
         options={{
-          headerTitle: () => <RoomsHeader />,
+          headerTitle: () => <RoomsHeader title='Rooms'/>,
           tabBarIcon: ({ color }) => <FontAwesome name="group" size={24} color={color} />,
           
         }}
@@ -71,7 +71,7 @@ export default function TabLayout() {
         <Tabs.Screen
         name="setting"
         options={{
-          headerTitle: () => <RoomsHeader />,
+          headerTitle: () => <RoomsHeader title='Settings'/>,
           tabBarIcon: ({ color }) => <Ionicons name="settings" size={24} color={color} />,
           
         }}

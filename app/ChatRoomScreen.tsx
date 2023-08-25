@@ -285,7 +285,7 @@ const ChatRoomScreen = () => {
         data={messages}
         inverted
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <Message message={item} setAsMessageReply={() => setMessageReplyTo(item)}
+        renderItem={({ item }) => <Message isRoom={chatRoom?.isRoom} message={item} setAsMessageReply={() => setMessageReplyTo(item)}
         />}
       />
       <MessageInput

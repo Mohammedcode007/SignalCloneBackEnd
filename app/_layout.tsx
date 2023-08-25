@@ -13,8 +13,10 @@ import { Provider } from 'react-redux';
 
 import awsconfig from '../src/aws-exports';
 import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
-import { Message, User } from '../src/models';
+import { ChatRoom, ChatRoomUser, Message, User } from '../src/models';
 import store from '../store';
+import { useNetInfo } from '@react-native-community/netinfo';
+import * as Network from 'expo-network';
 
 Amplify.configure(awsconfig);
 export {
@@ -69,7 +71,87 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState<User | null>(null);
   // Auth.currentAuthenticatedUser().then(console.log)
+  const netInfo = useNetInfo();
 
+  const [isConnected, setIsConnected] = useState(netInfo.isConnected);
+
+  useEffect(() => {
+    setIsConnected(netInfo.isConnected);
+
+    const checkNetworkStatus = async () => {
+      const networkStatus = await Network.getNetworkStateAsync();
+      setIsConnected(networkStatus.isConnected);
+    };
+
+    checkNetworkStatus();
+  }, [netInfo.isConnected]);
+
+  useEffect(() => {
+    if (isConnected === false) {
+
+      console.log("net cut");
+      const fetchroom = async () => {
+        const authUser = await Auth.currentAuthenticatedUser();
+        const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+        if (dbUser) {
+          const chatroomuser = await (await DataStore.query(ChatRoomUser)).filter((item) => {
+            return (
+              item?.userId === dbUser?.id
+            )
+          }).map((i) => {
+            return (
+              i?.chatRoomId
+            )
+          })
+
+          console.log(chatroomuser);
+
+          if (chatroomuser) {
+            const chatroomdetails = await Promise.all(chatroomuser.map(async (i) => {
+              return (
+                await DataStore.query(ChatRoom, i)
+              )
+            }))
+            if (chatroomdetails) {
+              const filterRoom = await chatroomdetails.filter((i) => {
+                return (
+                  i?.isRoom === true
+                )
+              })
+              const roomdelet = await (await DataStore.query(ChatRoomUser)).filter((item) => {
+                return filterRoom?.map((i) => i?.id).includes(item?.chatRoomId);
+              });
+
+
+
+
+
+              if (roomdelet) {
+                console.log(roomdelet, "roomdelet");
+
+                const data = await Promise.all(roomdelet.map(async (i) => {
+                  return await DataStore.delete(ChatRoomUser, i);
+                }));
+
+                console.log(data, "data");
+
+              }
+
+            }
+
+          }
+
+
+        }
+
+        // قم بتنفيذ إجراء عند انقطاع الاتصال، مثلا: الخروج من الغرف
+        // اقتراح: استخدم دالة logout أو إجراء مناسب للخروج من الغرف
+        // handleLogoutFromRooms();
+      }
+      fetchroom()
+    }
+  }, [isConnected]);
   useEffect(() => {
     const listener = Hub.listen("datastore", async (hubData) => {
       const { event, data } = hubData.payload;
@@ -111,7 +193,7 @@ function RootLayoutNav() {
   useEffect(() => {
     const interval = setInterval(async () => {
       await updateLastOnline();
-    },  1000);
+    }, 1000);
     return () => clearInterval(interval);
   }, [user]);
 
@@ -150,11 +232,11 @@ function RootLayoutNav() {
             headerShown: false,
             headerTitle: () => <ChatRoomHeader />,
           }} />
-           <Stack.Screen name="ProfileScreen" options={{
+          <Stack.Screen name="ProfileScreen" options={{
             headerShown: true,
 
           }} />
-          
+
           <Stack.Screen name="GroupInfoScreen" options={{
             headerShown: true,
 

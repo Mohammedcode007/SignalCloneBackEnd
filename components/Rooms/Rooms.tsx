@@ -36,9 +36,22 @@ const Rooms = () => {
       const chatRooms15 = await DataStore.query(ChatRoom);
 
       const list = chatRooms15.filter((i) => { return (i?.name !== null) })
-      setChatRoom(list)
+      // setChatRoom(list)
 
+      const chatRoomsData = await Promise.all(
+        list.map(async (room) => {
+          const usersCount = chatRooms1.filter((cr) => cr.chatRoomId === room.id).length;
+          return {
+            ...room,
+            usersCount,
+          };
+        })
+      );
 
+      // ترتيب الغرف بناءً على عدد المستخدمين بالترتيب النازل
+      const sortedChatRooms = chatRoomsData.sort((a, b) => b.usersCount - a.usersCount);
+
+      setChatRoom(sortedChatRooms);
 
     } catch (error) {
       console.log('Error fetching chatRoomDetails:', error);
@@ -87,51 +100,38 @@ const Rooms = () => {
   }, [allUsers]);
 
   const addUserToChatRoom = async (dbUser, ItemcRoom) => {
-    // const checkjoin = join?.filter((item)=>{return(
-    //   item?.chatRoomId === ItemcRoom?.id
-    // )})
-    // console.log(checkjoin,"checkjoin");
-    
-    // if(checkjoin === false){
-    //   dispatch(setjoin({
-    //     At: new Date(),
-    //     UserId :dbUser?.id,
-    //     chatRoomId:ItemcRoom?.id,
-    //   }));
-    // }
-
-    const isUserInside = allUsers?.filter((user) => { return (user === dbUser?.id) })
-
-
+    console.log('إضافة مستخدم إلى غرفة الدردشة:', dbUser, ItemcRoom);
+  
+    const isUserInside = allUsers?.filter((user) => user === dbUser?.id);
+  
+    console.log('هل المستخدم داخل الغرفة:', isUserInside);
+  
     if (isUserInside.length > 0) {
-   
+      console.log('الانتقال إلى غرفة الدردشة...');
       navigation.navigate('ChatRoomScreen', { id: ItemcRoom.id });
-
     } else {
       if (dbUser) {
-    const savedata=    await DataStore.save(new ChatRoomUser({
-          user: dbUser,
-          chatRoom: ItemcRoom,
-
-        }));
-        if(savedata){
+        try {
+          const savedData = await DataStore.save(
+            new ChatRoomUser({
+              user: dbUser,
+              chatRoom: ItemcRoom,
+            })
+          );
+  
+          console.log('تم حفظ ChatRoomUser:', savedData);
+  
           navigation.navigate('ChatRoomScreen', { id: ItemcRoom.id });
-
+        } catch (error) {
+          console.error('خطأ في حفظ ChatRoomUser:', error);
         }
-
       }
-
-
     }
-
-    // dispatch(addToActive(chatRoom));
-
-
   };
+  
 
   
   const handleItemPress = async (item) => {
-  
     const authUser = await Auth.currentAuthenticatedUser();
     const dbUser = await DataStore.query(User, authUser.attributes.sub);
   
@@ -143,12 +143,14 @@ const Rooms = () => {
         Alert.alert("You are banned from this room.");
       } else {
         // User is not banned, proceed with the rest of the code
-        setItemcRoom(item);
-        setitem(item);
-        fetchUsers(item);
+        const fetchedChatRoom = await DataStore.query(ChatRoom, item.id); // Fetch the complete ChatRoom model
+        setItemcRoom(fetchedChatRoom); // Set the fetched ChatRoom
+        setitem(fetchedChatRoom);
+        fetchUsers(fetchedChatRoom);
       }
     }
   };
+  
   
   const [refreshing, setRefreshing] = useState(false);
 
@@ -161,6 +163,8 @@ const onRefresh = async () => {
   setRefreshing(false);
 };
 
+
+const  [listOfRooms , setlistOfRooms] = useState<ChatRoom | null>(null);
 
   return (
     <View style={styles.page}>

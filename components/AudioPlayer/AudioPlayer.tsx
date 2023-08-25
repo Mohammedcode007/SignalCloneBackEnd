@@ -8,10 +8,11 @@ const AudioPlayer = ({ soundURI }) => {
   const [paused, setPause] = useState(true);
   const [audioProgress, setAudioProgress] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState("");
 
   useEffect(() => {
     loadSound();
-    () => {
+    return () => {
       // unload sound
       if (sound) {
         sound.unloadAsync();
@@ -40,6 +41,14 @@ const AudioPlayer = ({ soundURI }) => {
     setAudioProgress(status.positionMillis / (status.durationMillis || 1));
     setPause(!status.isPlaying);
     setAudioDuration(status.durationMillis || 0);
+
+    // Calculate remaining time
+    const remainingMillis = (status.durationMillis || 0) - status.positionMillis;
+    const remainingMinutes = Math.floor(remainingMillis / (60 * 1000));
+    const remainingSeconds = Math.floor((remainingMillis % (60 * 1000)) / 1000);
+    setTimeRemaining(
+      `${remainingMinutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`
+    );
   };
 
   const playPauseSound = async () => {
@@ -51,13 +60,6 @@ const AudioPlayer = ({ soundURI }) => {
     } else {
       await sound.pauseAsync();
     }
-  };
-
-  const getDuration = () => {
-    const minutes = Math.floor(audioDuration / (60 * 1000));
-    const seconds = Math.floor((audioDuration % (60 * 1000)) / 1000);
-
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
   return (
@@ -72,14 +74,14 @@ const AudioPlayer = ({ soundURI }) => {
         />
       </View>
 
-      <Text>{getDuration()}</Text>
+      <Text>{timeRemaining}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   sendAudioContainer: {
-    width:'75%',
+    width: "75%",
     marginVertical: 0,
     padding: 10,
     flexDirection: "row",

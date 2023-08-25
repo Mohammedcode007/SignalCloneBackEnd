@@ -8,10 +8,13 @@ import { useAuthenticator } from "@aws-amplify/ui-react-native";
 import { View, Modal, Pressable } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
 import { addTonotify } from "../../redux/mainSlice";
+import { COLORS } from './../../utils/COLORS';
 
-const RoomsHeader = () => {
+const RoomsHeader = ({title}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [roomName, setRoomName] = useState('');
+  const [user, setuser] = useState();
+
   const { notify } = useSelector((state) => state.mainReducer);
   console.log(notify, "notify");
 
@@ -79,7 +82,6 @@ const RoomsHeader = () => {
   const [fetchID, setfetchID] = useState([])
   const [userDetails, setuserDetails] = useState([])
   const [friendRequestLength, setFriendRequestLength] = useState(0); // State for storing friend request length
-  console.log(friendRequestLength, "friendRequestLength");
   const dispatch = useDispatch();
   useEffect(() => {
     if (friendRequestLength > 0) {
@@ -95,6 +97,7 @@ const RoomsHeader = () => {
       const dbUser = await DataStore.query(User, authUser.attributes.sub);
 
       if (dbUser) {
+        setuser(dbUser)
         const friendRequests = await DataStore.query(FriendRequest);
         const filteredFriendRequests = friendRequests.filter((i) => {
           return i?.recipientID === dbUser?.id;
@@ -136,13 +139,20 @@ const RoomsHeader = () => {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
       <TouchableOpacity onPress={openProfile}>
-      <Image source={{ uri: 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/jeff.jpeg' }}
+       {
+        user?.imageUri ?( <Image source={{ uri:  user?.imageUri }}
+        style={{ width: 30, height: 30, borderRadius: 30 }}
+      />):(
+        <Image source={require('../../assets/images/manlogo.png')}
         style={{ width: 30, height: 30, borderRadius: 30 }}
       />
+      )
+       }
+      
       </TouchableOpacity>
       
       {/* <AntDesign name="setting" size={24} color="black" /> */}
-      <Text style={{ flex: 1, textAlign: 'center', fontWeight: 'bold' }}>Rooms</Text>
+      <Text style={{ flex: 1, textAlign: 'center',fontSize:20, fontWeight: 'bold',color:COLORS.primary }}>{title}</Text>
       <Pressable onPress={() => setModalVisible(true)}>
 
         <AntDesign name="plus" size={24} color="black" style={{ marginRight: 15 }} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { Text, View } from '../Themed';
 import { styles } from './styles';
 import { Auth, DataStore } from "aws-amplify";
@@ -9,6 +9,7 @@ import { Feather, MaterialIcons } from "@expo/vector-icons";
 import * as Animatable from 'react-native-animatable';
 import moment from 'moment';
 import { useIsFocused } from '@react-navigation/native';
+import { COLORS } from '../../utils/COLORS';
 
 
 interface FriendsUserItemProps {
@@ -141,7 +142,11 @@ useEffect(()=>{
         }
     }, [isFocused, lastOnlineAt]);
     return (
-        <Pressable onLongPress={onLongPress}
+        <TouchableHighlight
+          activeOpacity={0.6}
+          underlayColor={COLORS.hover} 
+
+        onLongPress={onLongPress}
             onPress={onPress}>
             <View style={styles.container}>
                 <View style={{ flex: 1, display: 'flex', flexDirection: "row", justifyContent: 'space-between', alignItems: 'center' }}>
@@ -150,11 +155,19 @@ useEffect(()=>{
                         iterationCount="infinite"
                         duration={1000}
                     >
+                        {
+                            oneUserItem?.imageUri ? (<Image style={[styles.image, {
+                                borderColor: ckeckStatus === "online" ? 'green' : '',
+                                borderWidth: ckeckStatus === "online" ? 2 : 0
+                            }]} source={{ uri: oneUserItem?.imageUri }} />):(
+                                <Image style={[styles.image, {
+                                    borderColor: ckeckStatus === "online" ? 'green' : '',
+                                    borderWidth: ckeckStatus === "online" ? 2 : 0
+                                }]} source={require('../../assets/images/manlogo.png')} />
+                            )
+                        }
 
-                        <Image style={[styles.image, {
-                            borderColor: ckeckStatus === "online" ? 'green' : '',
-                            borderWidth: ckeckStatus === "online" ? 2 : 0
-                        }]} source={{ uri: oneUserItem?.imageUri }} />
+                        
                     </Animatable.View>
                     {/* <Image style={styles.image} source={{ uri: oneUserItem?.imageUri }} /> */}
                     <View style={styles.RightContainer}>
@@ -169,14 +182,8 @@ useEffect(()=>{
 
             </View>
 
-            {isSelected !== undefined && (
-                <Feather
-                    name={isSelected ? "check-circle" : "circle"}
-                    size={20}
-                    color="#4f4f4f"
-                />
-            )}
-        </Pressable>
+       
+        </TouchableHighlight>
 
     );
 };
