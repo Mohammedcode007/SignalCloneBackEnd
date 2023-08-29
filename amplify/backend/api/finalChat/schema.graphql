@@ -1,3 +1,9 @@
+type Favorite @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  chatroomID: ID! @index(name: "byChatRoom")
+}
+
 type Images @model @auth(rules: [{allow: public}]) {
   id: ID!
   userID: ID! @index(name: "byUser")
@@ -70,6 +76,7 @@ type ChatRoom @model @auth(rules: [{allow: public}]) {
   ChatRoomAdminships: [ChatRoomAdminship] @hasMany(indexName: "byChatRoom", fields: ["id"])
   ChatRoomMemberships: [ChatRoomMembership] @hasMany(indexName: "byChatRoom", fields: ["id"])
   ChatRoomBanships: [ChatRoomBanship] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  Favorites: [Favorite] @hasMany(indexName: "byChatRoom", fields: ["id"])
 }
 
 type User @model @auth(rules: [{allow: public}]) {
@@ -94,6 +101,7 @@ type User @model @auth(rules: [{allow: public}]) {
   Images: [Images] @hasMany(indexName: "byUser", fields: ["id"])
   imageCover: String
   gendar: String
+  Favorites: [Favorite] @hasMany(indexName: "byUser", fields: ["id"])
 }
 
 type Message @model @auth(rules: [{allow: public}]) {

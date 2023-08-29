@@ -1,6 +1,6 @@
 import { EvilIcons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
-import React ,{useState,useEffect}from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { User } from '../src/models';
 import { Auth, DataStore } from 'aws-amplify';
@@ -8,42 +8,42 @@ import CountryPicker from 'react-native-country-picker-modal';
 
 const ProfileScreen = () => {
     const route = useRoute();
-    const [user,setuser] =useState()
+    const [user, setUser] = useState<User | null>(null); // the display user
     const [pageViews, setPageViews] = useState(0);
     const [selectedCountry, setSelectedCountry] = useState(user?.country); // اختيار قيمة اولية للدولة ولتكن Egypt
     const handleCountrySelect = (country) => {
         setSelectedCountry(country?.cca2)
     };
-    console.log(user,"kkkkkkkkkkk");
+    console.log(user, "kkkkkkkkkkk");
 
-useEffect(()=>{
-if(route?.params?.id){
-    console.log(route?.params?.id,"route?.params?.id");
+    useEffect(() => {
+        if (route?.params?.id) {
+            console.log(route?.params?.id, "route?.params?.id");
 
-    const getDetails = async()=>{
-        const authUser = await Auth.currentAuthenticatedUser();
-        const dbUser = await DataStore.query(User, route?.params?.id);
-        if (dbUser) {
-            setuser(dbUser);
-            setSelectedCountry(dbUser?.country)
+            const getDetails = async () => {
+                const authUser = await Auth.currentAuthenticatedUser();
+                const dbUser = await DataStore.query(User, route?.params?.id);
+                if (dbUser) {
+                    setUser(dbUser);
+                    setSelectedCountry(dbUser?.country)
 
-            // Update the views field using copyOf
-            // const updatedUser = DataStore.copyOf(dbUser, updated => {
-            //     updated.views += 1; // Increment views by 1
-            // });
+                    // Update the views field using copyOf
+                    // const updatedUser = DataStore.copyOf(dbUser, updated => {
+                    //     updated.views += 1; // Increment views by 1
+                    // });
 
-            const updatedUser =   DataStore.save(
-                User?.copyOf(dbUser, (updated) => {
-                  updated.views = dbUser?.views + 1;
-                })
-              );
-            // Save the updated user to DataStore
-            await DataStore.save(updatedUser);
+                    const updatedUser = DataStore.save(
+                        User?.copyOf(dbUser, (updated) => {
+                            updated.views = dbUser?.views + 1;
+                        })
+                    );
+                    // Save the updated user to DataStore
+                    await DataStore.save(updatedUser);
+                }
+            }
+            getDetails()
         }
-    }
-    getDetails()
-}
-},[route?.params?.id])
+    }, [route?.params?.id])
     const images = [
         require('../assets/images/profilePhoto.jpg'),
         require('../assets/images/profilePhoto.jpg'),
@@ -55,7 +55,7 @@ if(route?.params?.id){
 
     const renderItem = ({ item }) => (
         <View style={styles.image}>
-            <Image source={item} style={styles.image} />
+            <Image source={item.uri} style={styles.image} />
         </View>
     );
 
@@ -64,19 +64,19 @@ if(route?.params?.id){
             <View style={styles.header}>
                 {
                     user?.imageCover ? (
-                        <Image source={{uri:user?.imageCover}} style={styles.cover} />
+                        <Image source={{ uri: user?.imageCover }} style={styles.cover} />
 
-                    ):(                <Image source={require('../assets/images/Cover.jpg')} style={styles.cover} />
+                    ) : (<Image source={require('../assets/images/Cover.jpg')} style={styles.cover} />
                     )
                 }
                 <View style={styles.curve}></View>
             </View>
             <View style={styles.photoContainer}>
-            {
+                {
                     user?.imageUri ? (
-                        <Image source={{uri:user?.imageUri}} style={styles.profileImage} />
+                        <Image source={{ uri: user?.imageUri }} style={styles.profileImage} />
 
-                    ):(                                <Image source={require('../assets/images/manlogo.png')} style={styles.profileImage} />
+                    ) : (<Image source={require('../assets/images/manlogo.png')} style={styles.profileImage} />
 
                     )
                 }
@@ -104,31 +104,31 @@ if(route?.params?.id){
                     <Text style={styles.text}>Gender</Text>
                 </View>
                 <View style={styles.containerCoulmn}>
-                <View style={styles.containerSelect}>
-                            {selectedCountry && (
-                                <View style={styles.selectedCountryContainer}>
-                                    <Image
-                                        source={{ uri: `https://www.countryflags.io/${selectedCountry}/flat/64.png` }}
-                                        style={styles.countryFlag}
-                                    />
-                                </View>
-                            )}
+                    <View style={styles.containerSelect}>
+                        {selectedCountry && (
+                            <View style={styles.selectedCountryContainer}>
+                                <Image
+                                    source={{ uri: `https://www.countryflags.io/${selectedCountry}/flat/64.png` }}
+                                    style={styles.countryFlag}
+                                />
+                            </View>
+                        )}
 
-                            <CountryPicker
-                                withFilter
-                                withFlagButton={true}
-                                onSelect={handleCountrySelect}
-                                countryCode={selectedCountry}
-                                translation="eng"
-                                flagStyles={{
-                                    borderRadius: 10, // Apply border radius to the flag icon
-                                    borderWidth: 2, // Apply border width to the flag icon
-                                    borderColor: 'blue',
-                                    bottom:0 // Set border color for the flag icon
-                                  }}
-                            />
-                        </View>                
-                            <Text style={styles.text}>country</Text>
+                        <CountryPicker
+                            withFilter
+                            withFlagButton={true}
+                            onSelect={handleCountrySelect}
+                            countryCode={selectedCountry}
+                            translation="eng"
+                            flagStyles={{
+                                borderRadius: 10, // Apply border radius to the flag icon
+                                borderWidth: 2, // Apply border width to the flag icon
+                                borderColor: 'blue',
+                                bottom: 0 // Set border color for the flag icon
+                            }}
+                        />
+                    </View>
+                    <Text style={styles.text}>country</Text>
                 </View>
             </View>
             <View style={{ width: '100%', alignItems: 'center', display: "flex", justifyContent: 'center', marginTop: 10 }}>
@@ -142,7 +142,7 @@ if(route?.params?.id){
                     horizontal={true} // Set horizontal layout
                     contentContainerStyle={styles.photoListContainer}
                 />
-               
+
             </View>
         </View>
     );
@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 50,
         borderBottomRightRadius: 100,
     },
-    pen:{
-        position:'absolute'
+    pen: {
+        position: 'absolute'
     },
     curve: {
         position: 'absolute',
@@ -197,14 +197,14 @@ const styles = StyleSheet.create({
     selectedCountryContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-      },
-      countryFlag: {
+    },
+    countryFlag: {
         width: 25,
         height: 15,
-      },
-      countryName: {
+    },
+    countryName: {
         fontSize: 16,
-      },
+    },
     profileInfo: {
         marginTop: '20%',
         alignItems: 'center',
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     containerSelect: {
         justifyContent: 'center',
         alignItems: 'center',
-flexDirection:'row',
+        flexDirection: 'row',
         backgroundColor: '#F5FCFF',
     },
     number: {

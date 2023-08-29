@@ -75,7 +75,6 @@ const Rooms = () => {
 
   useEffect(() => {
     fetchChatRoom();
-    // fetchUsers(ItemcRoom)
   }, [ItemcRoom]);
 
   useEffect(() => {
@@ -154,17 +153,16 @@ const Rooms = () => {
   
   const [refreshing, setRefreshing] = useState(false);
 
-const onRefresh = async () => {
-  setRefreshing(true);
-  // قم بجلب البيانات أو أداء أي مهام تحديث هنا
-  await fetchChatRoom();
-  await  fetchUsers(ItemcRoom)
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchChatRoom();
+    if (!refreshing) {
+      await fetchUsers(ItemcRoom);
+    }
+    setRefreshing(false);
+  };
+  
 
-  setRefreshing(false);
-};
-
-
-const  [listOfRooms , setlistOfRooms] = useState<ChatRoom | null>(null);
 
   return (
     <View style={styles.page}>

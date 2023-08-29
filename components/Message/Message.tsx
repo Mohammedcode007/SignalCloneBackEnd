@@ -134,12 +134,11 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
   //   return () => subscription.unsubscribe();
   // }, []);
 
-const viewprofile =(userId) =>{
-  console.log(userId,"userId");
-  
-  navigation.navigate("ProfileScreen",{id:userId});
+  const viewprofile = (userId) => {
 
-}
+    navigation.navigate("ProfileScreen", { id: userId });
+
+  }
   useEffect(() => {
     const subscription = DataStore.observe(MessageModel, message?.id).subscribe(
       (msg) => {
@@ -207,323 +206,357 @@ const viewprofile =(userId) =>{
   };
 
   const addOwner = async (userId) => {
+    if (message?.chatroomID) {
+      const chatRoomDetails = await DataStore.query(ChatRoom, message?.chatroomID)
 
-    try {
-      const user = await DataStore.query(User, userId);
+      if (chatRoomDetails?.chatRoomCreatorId !== message?.userID) {
+        try {
+          const user = await DataStore.query(User, userId);
 
-      if (!user) {
-        console.log(`User with ID ${userId} not found.`);
-        return;
+          if (!user) {
+            console.log(`User with ID ${userId} not found.`);
+            return;
+          }
+
+          // Check if the user is already an admin or member
+          const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+
+          if (isOwner.length > 0) {
+            console.log(`User with ID ${userId} is already an owner.`);
+            return;
+          }
+
+          if (isAdmin.length > 0 || isMember.length > 0) {
+            console.log('Removing user from admin or member list...');
+            // Fetch and delete user's admin records
+            await Promise.all(isAdmin.map(record => DataStore.delete(ChatRoomAdminship, record.id)));
+
+            // Fetch and delete user's member records
+            await Promise.all(isMember.map(record => DataStore.delete(ChatRoomMembership, record.id)));
+
+            console.log('User removed from admin or member list.');
+          }
+
+          // Add user to the owner list
+          const newOwnershipRecord = await DataStore.save(
+            new ChatRoomOwnership({
+              userID: userId,
+              chatroomID: message?.chatroomID,
+            })
+          );
+          console.log('User added to owner list successfully:', newOwnershipRecord);
+          const authUser = await Auth.currentAuthenticatedUser();
+          const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+          // أنشئ محتوى رسالة الخروج
+          if (dbUser) {
+
+            const exitMessage = await DataStore.save(
+              new MessageModel({
+                content: `${user?.name}  set owner by ${dbUser.name} `,
+                userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+                chatroomID: message?.chatroomID,
+              })
+            );
+            dispatch(setexitMessageContent(exitMessage))
+
+
+          }
+          console.log('Ownership records updated successfully.');
+        } catch (error) {
+          console.error('Error updating ownership records:', error);
+          throw error;
+        }
       }
 
-      // Check if the user is already an admin or member
-      const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-
-      if (isOwner.length > 0) {
-        console.log(`User with ID ${userId} is already an owner.`);
-        return;
-      }
-
-      if (isAdmin.length > 0 || isMember.length > 0) {
-        console.log('Removing user from admin or member list...');
-        // Fetch and delete user's admin records
-        await Promise.all(isAdmin.map(record => DataStore.delete(ChatRoomAdminship, record.id)));
-
-        // Fetch and delete user's member records
-        await Promise.all(isMember.map(record => DataStore.delete(ChatRoomMembership, record.id)));
-
-        console.log('User removed from admin or member list.');
-      }
-
-      // Add user to the owner list
-      const newOwnershipRecord = await DataStore.save(
-        new ChatRoomOwnership({
-          userID: userId,
-          chatroomID: message?.chatroomID,
-        })
-      );
-      console.log('User added to owner list successfully:', newOwnershipRecord);
-      const authUser = await Auth.currentAuthenticatedUser();
-      const dbUser = await DataStore.query(User, authUser.attributes.sub);
-
-      // أنشئ محتوى رسالة الخروج
-      if (dbUser) {
-
-        const exitMessage = await DataStore.save(
-          new MessageModel({
-            content: `${user?.name}  set owner by ${dbUser.name} `,
-            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
-            chatroomID: message?.chatroomID,
-          })
-        );
-        dispatch(setexitMessageContent(exitMessage))
-
-
-      }
-      console.log('Ownership records updated successfully.');
-    } catch (error) {
-      console.error('Error updating ownership records:', error);
-      throw error;
     }
+
   };
 
 
   const addAdmin = async (userId) => {
+    if (message?.chatroomID) {
+      const chatRoomDetails = await DataStore.query(ChatRoom, message?.chatroomID)
 
-    try {
-      const user = await DataStore.query(User, userId);
+      if (chatRoomDetails?.chatRoomCreatorId !== message?.userID) {
+        try {
+          const user = await DataStore.query(User, userId);
 
-      if (!user) {
-        console.log(`User with ID ${userId} not found.`);
-        return;
+          if (!user) {
+            console.log(`User with ID ${userId} not found.`);
+            return;
+          }
+
+          // Check if the user is already an admin or member
+          const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+
+          if (isAdmin.length > 0) {
+            console.log(`User with ID ${userId} is already an admin.`);
+            return;
+          }
+
+          if (isOwner.length > 0 || isMember.length > 0) {
+            console.log('Removing user from admin or member list...');
+            // Fetch and delete user's admin records
+            await Promise.all(isOwner.map(record => DataStore.delete(ChatRoomOwnership, record.id)));
+
+            // Fetch and delete user's member records
+            await Promise.all(isMember.map(record => DataStore.delete(ChatRoomMembership, record.id)));
+
+            console.log('User removed from admin or member list.');
+          }
+
+          // Add user to the owner list
+          const newAdminshipRecord = await DataStore.save(
+            new ChatRoomAdminship({
+              userID: userId,
+              chatroomID: message?.chatroomID,
+            })
+          );
+          console.log('User added to owner list successfully:', newAdminshipRecord);
+          const authUser = await Auth.currentAuthenticatedUser();
+          const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+          // أنشئ محتوى رسالة الخروج
+          if (dbUser) {
+
+            const exitMessage = await DataStore.save(
+              new MessageModel({
+                content: `${user?.name}  set admin by ${dbUser.name} `,
+                userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+                chatroomID: message?.chatroomID,
+              })
+            );
+            dispatch(setexitMessageContent(exitMessage))
+
+
+          }
+          console.log('Ownership records updated successfully.');
+        } catch (error) {
+          console.error('Error updating ownership records:', error);
+          throw error;
+        }
       }
-
-      // Check if the user is already an admin or member
-      const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-
-      if (isAdmin.length > 0) {
-        console.log(`User with ID ${userId} is already an admin.`);
-        return;
-      }
-
-      if (isOwner.length > 0 || isMember.length > 0) {
-        console.log('Removing user from admin or member list...');
-        // Fetch and delete user's admin records
-        await Promise.all(isOwner.map(record => DataStore.delete(ChatRoomOwnership, record.id)));
-
-        // Fetch and delete user's member records
-        await Promise.all(isMember.map(record => DataStore.delete(ChatRoomMembership, record.id)));
-
-        console.log('User removed from admin or member list.');
-      }
-
-      // Add user to the owner list
-      const newAdminshipRecord = await DataStore.save(
-        new ChatRoomAdminship({
-          userID: userId,
-          chatroomID: message?.chatroomID,
-        })
-      );
-      console.log('User added to owner list successfully:', newAdminshipRecord);
-      const authUser = await Auth.currentAuthenticatedUser();
-      const dbUser = await DataStore.query(User, authUser.attributes.sub);
-
-      // أنشئ محتوى رسالة الخروج
-      if (dbUser) {
-
-        const exitMessage = await DataStore.save(
-          new MessageModel({
-            content: `${user?.name}  set admin by ${dbUser.name} `,
-            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
-            chatroomID: message?.chatroomID,
-          })
-        );
-        dispatch(setexitMessageContent(exitMessage))
-
-
-      }
-      console.log('Ownership records updated successfully.');
-    } catch (error) {
-      console.error('Error updating ownership records:', error);
-      throw error;
     }
+
   };
 
   const addMemer = async (userId) => {
+    if (message?.chatroomID) {
+      const chatRoomDetails = await DataStore.query(ChatRoom, message?.chatroomID)
 
-    try {
-      const user = await DataStore.query(User, userId);
+      if (chatRoomDetails?.chatRoomCreatorId !== message?.userID) {
+        try {
+          const user = await DataStore.query(User, userId);
 
-      if (!user) {
-        console.log(`User with ID ${userId} not found.`);
-        return;
+          if (!user) {
+            console.log(`User with ID ${userId} not found.`);
+            return;
+          }
+
+          // Check if the user is already an admin or member
+          const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+
+          if (isMember.length > 0) {
+            console.log(`User with ID ${userId} is already an admin.`);
+            return;
+          }
+
+          if (isOwner.length > 0 || isAdmin.length > 0) {
+            console.log('Removing user from admin or member list...');
+            // Fetch and delete user's admin records
+            await Promise.all(isOwner.map(record => DataStore.delete(ChatRoomOwnership, record.id)));
+
+            // Fetch and delete user's member records
+            await Promise.all(isAdmin.map(record => DataStore.delete(ChatRoomAdminship, record.id)));
+
+            console.log('User removed from admin or member list.');
+          }
+
+          // Add user to the owner list
+          const newAdminshipRecord = await DataStore.save(
+            new ChatRoomMembership({
+              userID: userId,
+              chatroomID: message?.chatroomID,
+            })
+          );
+          console.log('User added to owner list successfully:', newAdminshipRecord);
+          const authUser = await Auth.currentAuthenticatedUser();
+          const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+          // أنشئ محتوى رسالة الخروج
+          if (dbUser) {
+
+            const exitMessage = await DataStore.save(
+              new MessageModel({
+                content: `${user?.name}  set member by ${dbUser.name} `,
+                userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+                chatroomID: message?.chatroomID,
+              })
+            );
+            dispatch(setexitMessageContent(exitMessage))
+
+
+          }
+          console.log('Ownership records updated successfully.');
+        } catch (error) {
+          console.error('Error updating ownership records:', error);
+          throw error;
+        }
       }
-
-      // Check if the user is already an admin or member
-      const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-
-      if (isMember.length > 0) {
-        console.log(`User with ID ${userId} is already an admin.`);
-        return;
-      }
-
-      if (isOwner.length > 0 || isAdmin.length > 0) {
-        console.log('Removing user from admin or member list...');
-        // Fetch and delete user's admin records
-        await Promise.all(isOwner.map(record => DataStore.delete(ChatRoomOwnership, record.id)));
-
-        // Fetch and delete user's member records
-        await Promise.all(isAdmin.map(record => DataStore.delete(ChatRoomAdminship, record.id)));
-
-        console.log('User removed from admin or member list.');
-      }
-
-      // Add user to the owner list
-      const newAdminshipRecord = await DataStore.save(
-        new ChatRoomMembership({
-          userID: userId,
-          chatroomID: message?.chatroomID,
-        })
-      );
-      console.log('User added to owner list successfully:', newAdminshipRecord);
-      const authUser = await Auth.currentAuthenticatedUser();
-      const dbUser = await DataStore.query(User, authUser.attributes.sub);
-
-      // أنشئ محتوى رسالة الخروج
-      if (dbUser) {
-
-        const exitMessage = await DataStore.save(
-          new MessageModel({
-            content: `${user?.name}  set member by ${dbUser.name} `,
-            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
-            chatroomID: message?.chatroomID,
-          })
-        );
-        dispatch(setexitMessageContent(exitMessage))
-
-
-      }
-      console.log('Ownership records updated successfully.');
-    } catch (error) {
-      console.error('Error updating ownership records:', error);
-      throw error;
     }
+
   };
 
 
   const addBan = async (userId) => {
+    if (message?.chatroomID) {
+      const chatRoomDetails = await DataStore.query(ChatRoom, message?.chatroomID)
 
-    try {
-      const user = await DataStore.query(User, userId);
+      if (chatRoomDetails?.chatRoomCreatorId !== message?.userID) {
+        try {
+          const user = await DataStore.query(User, userId);
 
-      if (!user) {
-        console.log(`User with ID ${userId} not found.`);
-        return;
-      }
+          if (!user) {
+            console.log(`User with ID ${userId} not found.`);
+            return;
+          }
 
-      // Check if the user is already an admin or member
-      const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
-      const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          // Check if the user is already an admin or member
+          const isAdmin = (await DataStore.query(ChatRoomAdminship)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isMember = (await DataStore.query(ChatRoomMembership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
+          const isOwner = (await DataStore.query(ChatRoomOwnership)).filter((u) => u?.userID === userId && u?.chatroomID === message?.chatroomID);
 
-      if (isMember.length > 0) {
-        console.log(`User with ID ${userId} is already an admin.`);
-        return;
-      }
+          if (isMember.length > 0) {
+            console.log(`User with ID ${userId} is already an admin.`);
+            return;
+          }
 
-      if (isOwner.length > 0 || isAdmin.length > 0 || isMember.length > 0) {
-        console.log('Removing user from admin or member list...');
-        // Fetch and delete user's admin records
-        await Promise.all(isOwner.map(record => DataStore.delete(ChatRoomOwnership, record.id)));
+          if (isOwner.length > 0 || isAdmin.length > 0 || isMember.length > 0) {
+            console.log('Removing user from admin or member list...');
+            // Fetch and delete user's admin records
+            await Promise.all(isOwner.map(record => DataStore.delete(ChatRoomOwnership, record.id)));
 
-        // Fetch and delete user's member records
-        await Promise.all(isAdmin.map(record => DataStore.delete(ChatRoomAdminship, record.id)));
-        await Promise.all(isMember.map(record => DataStore.delete(ChatRoomMembership, record.id)));
+            // Fetch and delete user's member records
+            await Promise.all(isAdmin.map(record => DataStore.delete(ChatRoomAdminship, record.id)));
+            await Promise.all(isMember.map(record => DataStore.delete(ChatRoomMembership, record.id)));
 
-        console.log('User removed from admin or member list.');
-      }
+            console.log('User removed from admin or member list.');
+          }
 
-      const chatRoomUserToDelete = await (
-        await DataStore.query(ChatRoomUser)
-      ).filter(
-        (cru) => cru.chatRoomId === message?.chatroomID && cru?.userId === userId
-      );
+          const chatRoomUserToDelete = await (
+            await DataStore.query(ChatRoomUser)
+          ).filter(
+            (cru) => cru.chatRoomId === message?.chatroomID && cru?.userId === userId
+          );
 
-      if (chatRoomUserToDelete.length > 0) {
+          if (chatRoomUserToDelete.length > 0) {
 
-        await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
+            await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
 
-        navigation.navigate('(tabs)');
-
-
-        console.log("تم حذف المستخدم بنجاح من غرفة الدردشة");
-      } else {
-        console.log("لم يتم العثور على المستخدم في غرفة الدردشة");
-      }
-
-      // Add user to the owner list
-      const newBanshipRecord = await DataStore.save(
-        new ChatRoomBanship({
-          userID: userId,
-          chatroomID: message?.chatroomID,
-        })
-      );
+            navigation.navigate('(tabs)');
 
 
-      console.log('User added to ban list successfully:', newBanshipRecord);
-      const authUser = await Auth.currentAuthenticatedUser();
-      const dbUser = await DataStore.query(User, authUser.attributes.sub);
+            console.log("تم حذف المستخدم بنجاح من غرفة الدردشة");
+          } else {
+            console.log("لم يتم العثور على المستخدم في غرفة الدردشة");
+          }
 
-      // أنشئ محتوى رسالة الخروج
-      if (dbUser) {
-
-        const exitMessage = await DataStore.save(
-          new MessageModel({
-            content: `${user?.name}  set ban by ${dbUser.name} `,
-            userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
-            chatroomID: message?.chatroomID,
-          })
-        );
-        dispatch(removeFromActive(message?.chatroomID));
-
-        dispatch(setexitMessageContent(exitMessage))
-
-
-      }
-      console.log('Ownership records updated successfully.');
-    } catch (error) {
-      console.error('Error updating ownership records:', error);
-      throw error;
-    }
-  };
-  const kickuser = async (userId) => {
-    try {
-      // Find the specific ChatRoomUser instance to delete
-      const chatRoomUserToDelete = await (
-        await DataStore.query(ChatRoomUser)
-      ).filter(
-        (cru) => cru.chatRoomId === message?.chatroomID && cru?.userId === userId
-      );
-
-      if (chatRoomUserToDelete.length > 0) {
-
-        await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
-        const authUser = await Auth.currentAuthenticatedUser();
-        const dbUser = await DataStore.query(User, authUser.attributes.sub);
-
-        // أنشئ محتوى رسالة الخروج
-        if (dbUser) {
-
-          const exitMessage = await DataStore.save(
-            new MessageModel({
-              content: `${user?.name}  kicked by ${dbUser.name} `,
-              userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+          // Add user to the owner list
+          const newBanshipRecord = await DataStore.save(
+            new ChatRoomBanship({
+              userID: userId,
               chatroomID: message?.chatroomID,
             })
           );
-          dispatch(removeFromActive(message?.chatroomID));
-          dispatch(setexitMessageContent(exitMessage))
 
 
+          console.log('User added to ban list successfully:', newBanshipRecord);
+          const authUser = await Auth.currentAuthenticatedUser();
+          const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+          // أنشئ محتوى رسالة الخروج
+          if (dbUser) {
+
+            const exitMessage = await DataStore.save(
+              new MessageModel({
+                content: `${user?.name}  set ban by ${dbUser.name} `,
+                userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+                chatroomID: message?.chatroomID,
+              })
+            );
+            dispatch(removeFromActive(message?.chatroomID));
+
+            dispatch(setexitMessageContent(exitMessage))
+
+
+          }
+          console.log('Ownership records updated successfully.');
+        } catch (error) {
+          console.error('Error updating ownership records:', error);
+          throw error;
         }
-        navigation.navigate('(tabs)');
-
-        console.log("user kickied");
-      } else {
-        console.log("لم يتم العثور على المستخدم في غرفة الدردشة");
       }
-
-
-    } catch (error) {
-      console.error("Error deleting user:", error);
     }
+
   };
+  const kickuser = async (userId) => {
+    if (message?.chatroomID) {
+      const chatRoomDetails = await DataStore.query(ChatRoom, message?.chatroomID)
+
+      if (chatRoomDetails?.chatRoomCreatorId !== message?.userID) {
+        try {
+          // Find the specific ChatRoomUser instance to delete
+          const chatRoomUserToDelete = await (
+            await DataStore.query(ChatRoomUser)
+          ).filter(
+            (cru) => cru.chatRoomId === message?.chatroomID && cru?.userId === userId
+          );
+
+          if (chatRoomUserToDelete.length > 0) {
+
+            await DataStore.delete(ChatRoomUser, chatRoomUserToDelete[0]?.id);
+            const authUser = await Auth.currentAuthenticatedUser();
+            const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+            // أنشئ محتوى رسالة الخروج
+            if (dbUser) {
+
+              const exitMessage = await DataStore.save(
+                new MessageModel({
+                  content: `${user?.name}  kicked by ${dbUser.name} `,
+                  userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
+                  chatroomID: message?.chatroomID,
+                })
+              );
+              dispatch(removeFromActive(message?.chatroomID));
+              dispatch(setexitMessageContent(exitMessage))
+
+
+            }
+            navigation.navigate('(tabs)');
+
+            console.log("user kickied");
+          } else {
+            console.log("لم يتم العثور على المستخدم في غرفة الدردشة");
+          }
+
+
+        } catch (error) {
+          console.error("Error deleting user:", error);
+        }
+      }
+    }
+
+  };
+  const [creatorcolor, setcreatorcolor] = useState(false)
+  const [creatorrole, setcreatorrole] = useState(false)
 
   const [adminColor, setadminColor] = useState([])
   const [memberColor, setmemberColor] = useState([])
@@ -619,6 +652,27 @@ const viewprofile =(userId) =>{
     addBan()
 
   }, [])
+  useEffect(() => {
+    const checkroles = async () => {
+      const authUser = await Auth.currentAuthenticatedUser();
+      const dbUser = await DataStore.query(User, authUser.attributes.sub);
+      if (message?.chatroomID,dbUser) {
+        const chatRoomDetails = await DataStore.query(ChatRoom, message?.chatroomID)
+
+        if (chatRoomDetails?.chatRoomCreatorId === dbUser?.id) {
+          setcreatorrole(true)
+        }
+
+        if (chatRoomDetails?.chatRoomCreatorId === message?.userID) {
+          setcreatorcolor(true)
+        }
+
+      }
+
+
+    }
+    checkroles()
+  },[message])
 
 
   if (!user) {
@@ -670,7 +724,15 @@ const viewprofile =(userId) =>{
 
               {
                 isRoom === true && (<View style={styles.star}>
-                  <Entypo name="star" size={20} color={adminColor.includes(user?.id) ? 'blue' : ownerColor.includes(user?.id) ? 'red' : memberColor.includes(user?.id) ? 'green' : 'grey'} />
+                  {
+                    creatorcolor === true ? (
+                      <Entypo name="star" size={20} color='#fab702' />
+
+                    ) : (
+                      <Entypo name="star" size={20} color={adminColor.includes(user?.id) ? 'blue' : ownerColor.includes(user?.id) ? 'red' : memberColor.includes(user?.id) ? 'green' : 'grey'} />
+
+                    )
+                  }
                 </View>)
               }
 
@@ -688,26 +750,91 @@ const viewprofile =(userId) =>{
                 <View style={styles.dropdownContainer}>
                   {
                     isRoom === true ? (
-                      <View>
-                        <TouchableOpacity onPress={() => addOwner(user?.id)} style={styles.dropdownItem}>
-                          <Text>Make Owner</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => addAdmin(user?.id)} style={styles.dropdownItem}>
-                          <Text>Make Admin</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => addMemer(user?.id)} style={styles.dropdownItem}>
-                          <Text>Make Member</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => kickuser(user?.id)} style={styles.dropdownItem}>
-                          <Text>Kick</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
-                          <Text>ban</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
-                          <Text>ViewProfile</Text>
-                        </TouchableOpacity>
-                      </View>
+
+
+                      creatorrole === true ? (
+                        <View>
+                          <TouchableOpacity onPress={() => addOwner(user?.id)} style={styles.dropdownItem}>
+                            <Text>Make Owner</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => addAdmin(user?.id)} style={styles.dropdownItem}>
+                            <Text>Make Admin</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => addMemer(user?.id)} style={styles.dropdownItem}>
+                            <Text>Make Member</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => kickuser(user?.id)} style={styles.dropdownItem}>
+                            <Text>Kick</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
+                            <Text>ban</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => viewprofile(user?.id)} style={styles.dropdownItem}>
+                            <Text>ViewProfile</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        adminColor.includes(user?.id) ? (
+                          <View>
+
+                        
+                            <TouchableOpacity onPress={() => addMemer(user?.id)} style={styles.dropdownItem}>
+                              <Text>Make Member</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => kickuser(user?.id)} style={styles.dropdownItem}>
+                              <Text>Kick</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
+                              <Text>ban</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => viewprofile(user?.id)} style={styles.dropdownItem}>
+                              <Text>ViewProfile</Text>
+                            </TouchableOpacity>
+                          </View>
+
+                        )
+                          : ownerColor.includes(user?.id) ? (
+                            <View>
+                              <TouchableOpacity onPress={() => addOwner(user?.id)} style={styles.dropdownItem}>
+                                <Text>Make Owner</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => addAdmin(user?.id)} style={styles.dropdownItem}>
+                                <Text>Make Admin</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => addMemer(user?.id)} style={styles.dropdownItem}>
+                                <Text>Make Member</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => kickuser(user?.id)} style={styles.dropdownItem}>
+                                <Text>Kick</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => addBan(user?.id)} style={styles.dropdownItem}>
+                                <Text>ban</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => viewprofile(user?.id)} style={styles.dropdownItem}>
+                                <Text>ViewProfile</Text>
+                              </TouchableOpacity>
+                            </View>
+
+                          ) : memberColor.includes(user?.id) ? (
+                            <View>
+
+                              <TouchableOpacity onPress={() => viewprofile(user?.id)} style={styles.dropdownItem}>
+                                <Text>ViewProfile</Text>
+                              </TouchableOpacity>
+                            </View>
+
+                          ) : (
+                            <View>
+
+                              <TouchableOpacity onPress={() => viewprofile(user?.id)} style={styles.dropdownItem}>
+                                <Text>ViewProfile</Text>
+                              </TouchableOpacity>
+
+                            </View>
+                          )
+                      )
+
+
 
                     ) : (
                       <View>
@@ -767,10 +894,12 @@ const viewprofile =(userId) =>{
                     <View style={{}}>
                       <Text
                         style={{
-                          color: adminColor.includes(user?.id) ?
-                            'blue' : ownerColor.includes(user?.id) ?
-                              'red' : memberColor.includes(user?.id) ?
-                                'green' : 'black',
+                          color: creatorcolor === true ? "#fab702" : (
+                            adminColor.includes(user?.id) ?
+                              'blue' : ownerColor.includes(user?.id) ?
+                                'red' : memberColor.includes(user?.id) ?
+                                  'green' : 'black'
+                          ),
                           borderBottomColor: 'grey',
                           borderBottomWidth: 0.5,
                           marginBottom: 2,

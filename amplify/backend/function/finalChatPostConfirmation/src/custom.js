@@ -24,6 +24,8 @@ exports.handler = async (event) => {
     updatedAt: { S: now.toISOString() },
     id: { S: event.request.userAttributes.sub },
     name: { S: event.request.userAttributes.name  }, // Save "username" value as "name"
+    username: { S: event.request.userAttributes.username  }, // Save "username" value as "name"
+
   }
   
   const params = {

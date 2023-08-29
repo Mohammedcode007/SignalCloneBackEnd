@@ -8,6 +8,7 @@ import moment from 'moment';
 import UserItem from '../UserItem/UserItem';
 import Message from '../Message/Message';
 import { Message as MessageModel } from "../../src/models";
+import { COLORS } from '../../utils/COLORS';
 
 const ChatRoomHeader = ({ id }) => {
   const { width } = useWindowDimensions()
@@ -218,7 +219,7 @@ const ChatRoomHeader = ({ id }) => {
 
      
       <Pressable onPress={openInfoModal } style={{ flex: 1, marginLeft: 10 }}>
-        <View style={{ flex: 1, marginLeft: 10 }}>
+        <View style={{ flex: 1, marginLeft: 10,justifyContent:'center',alignItems:'center' }}>
           <Text style={{ fontWeight: "bold",textAlign:'left' }}>
             {chatRoom?.name || user?.name}
           </Text>
@@ -304,7 +305,7 @@ const ChatRoomHeader = ({ id }) => {
 
         >
           <View style={styles.dropdownContaineruser}>
-            <Text style={styles.text}>Users</Text>
+            <Text style={styles.text}>{`Users  (${allUsers?.length})`} </Text>
             <FlatList
               data={allUsers}
               keyExtractor={(item, index) => `user-${index}`} // تحديد مفتاح فريد باستخدام اسم النموذج ومعرّف المستخدم
@@ -313,6 +314,7 @@ const ChatRoomHeader = ({ id }) => {
                 <UserItem
                   oneUserItem={item}
                   chatRoom={chatRoom}
+                  setDropdownVisibleuser={setDropdownVisibleuser}
                 />
               )}
             />
@@ -340,13 +342,10 @@ const ChatRoomHeader = ({ id }) => {
           />
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={{ marginHorizontal: 10 }} onPress={handleSaveWelcomeMessage}>
-              <Text style={{ color: '#D0ECE8' }}>Ok</Text>
+              <Text style={{ color: COLORS.primary, fontWeight: 'bold',borderRadius:20,margin:20 }}>Ok</Text>
 
             </TouchableOpacity>
-            <TouchableOpacity >
-              <Text style={{ color: '#D0ECE8', fontWeight: 'bold' }}>Cancel</Text>
-
-            </TouchableOpacity>
+           
           </View>
         </View>
       </Modal>

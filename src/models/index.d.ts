@@ -16,6 +16,36 @@ export enum MessageStatus {
 
 
 
+type EagerFavorite = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Favorite, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly userID: string;
+  readonly chatroomID: string;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+type LazyFavorite = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Favorite, 'id'>;
+    readOnlyFields: 'createdAt' | 'updatedAt';
+  };
+  readonly id: string;
+  readonly userID: string;
+  readonly chatroomID: string;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+export declare type Favorite = LazyLoading extends LazyLoadingDisabled ? EagerFavorite : LazyFavorite
+
+export declare const Favorite: (new (init: ModelInit<Favorite>) => Favorite) & {
+  copyOf(source: Favorite, mutator: (draft: MutableModel<Favorite>) => MutableModel<Favorite> | void): Favorite;
+}
+
 type EagerImages = {
   readonly [__modelMeta__]: {
     identifier: ManagedIdentifier<Images, 'id'>;
@@ -249,6 +279,7 @@ type EagerChatRoom = {
   readonly ChatRoomAdminships?: (ChatRoomAdminship | null)[] | null;
   readonly ChatRoomMemberships?: (ChatRoomMembership | null)[] | null;
   readonly ChatRoomBanships?: (ChatRoomBanship | null)[] | null;
+  readonly Favorites?: (Favorite | null)[] | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly chatRoomLastMessageId?: string | null;
@@ -276,6 +307,7 @@ type LazyChatRoom = {
   readonly ChatRoomAdminships: AsyncCollection<ChatRoomAdminship>;
   readonly ChatRoomMemberships: AsyncCollection<ChatRoomMembership>;
   readonly ChatRoomBanships: AsyncCollection<ChatRoomBanship>;
+  readonly Favorites: AsyncCollection<Favorite>;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly chatRoomLastMessageId?: string | null;
@@ -314,6 +346,7 @@ type EagerUser = {
   readonly Images?: (Images | null)[] | null;
   readonly imageCover?: string | null;
   readonly gendar?: string | null;
+  readonly Favorites?: (Favorite | null)[] | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -344,6 +377,7 @@ type LazyUser = {
   readonly Images: AsyncCollection<Images>;
   readonly imageCover?: string | null;
   readonly gendar?: string | null;
+  readonly Favorites: AsyncCollection<Favorite>;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }

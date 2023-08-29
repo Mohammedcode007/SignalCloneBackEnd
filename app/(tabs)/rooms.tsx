@@ -6,6 +6,7 @@ import ActiveRooms from '../../components/ActiveRooms/ActiveRooms';
 import { ChatRoom } from '../../src/models';
 import SignUpScreen from '../../components/Fav/Fav';
 import PublicTab from '../../components/tabComponent/PublicTab';
+import FavoriteRooms from '../../components/FavoriteRooms/FavoriteRooms';
 
 
 const rooms = () => {
@@ -24,7 +25,7 @@ const rooms = () => {
   );
   
   const Favorite = () => (
-    <SignUpScreen />
+    <FavoriteRooms />
   );
   
   const renderScene = SceneMap({

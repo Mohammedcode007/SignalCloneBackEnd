@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Pressable, TouchableOpacity, Alert } from 'react-native';
 import { Text, View } from '../Themed';
 import { styles } from './styles';
 import { Auth, DataStore } from "aws-amplify";
@@ -20,45 +20,16 @@ interface UserItemProps {
   isAdmin: false;
   onLongPress: () => void;
   chatRoom: any;
+  setDropdownVisibleuser:any;
 
 }
 
-const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, isAdmin, onLongPress, chatRoom }: UserItemProps) => {
+const UserItem: React.FC<UserItemProps> = ({ oneUserItem,setDropdownVisibleuser, isSelected, onPress, isAdmin, onLongPress, chatRoom }: UserItemProps) => {
   const navigation = useNavigation();
 
   const [adminColor, setadminColor] = useState([])
   const [memberColor, setmemberColor] = useState([])
   const [ownerColor, setownerColor] = useState([])
-
-  // const createChatRoom = async () => {
-  //   try {
-  //     const newChatRoom = await DataStore.save(new ChatRoom({ newMessages: 0 }));
-
-  //     const authUser = await Auth.currentAuthenticatedUser();
-
-  //     const loggedInUserId = authUser.attributes.sub;
-  //     const loggedInUser = await DataStore.query(User, loggedInUserId);
-  //     const selectedUser = await DataStore.query(User, oneUserItem.id);
-
-  //     if (loggedInUser && selectedUser) {
-  //       await DataStore.save(new ChatRoomUser({
-  //         user: loggedInUser,
-  //         chatRoom: newChatRoom
-  //       }));
-
-  //       await DataStore.save(new ChatRoomUser({
-  //         user: selectedUser,
-  //         chatRoom: newChatRoom
-  //       }));
-  //     }
-  //     navigation.navigate('ChatRoomScreen', { id: newChatRoom?.id });
-
-  //     // Rest of the code..
-  //   } catch (error) {
-  //     console.error('Error creating chatroom:', error);
-  //   }
-  // };
-
 
 
 
@@ -110,7 +81,6 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, i
       })
 
       if (check.length > 0) {
-        console.log(check.length, "vvvvv");
 
       } else {
         const res = await DataStore.save(new FriendRequest({
@@ -121,10 +91,149 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, i
         setcheckIcon(res)
 
       }
-      console.log(check);
     }
 
   }
+
+
+  const addUserToChatRoom = async (user, chatroom) => {
+    if (user) {
+      await DataStore.save(new ChatRoomUser({
+        user: user,
+        chatRoom: chatroom
+      }));
+    }
+
+  };
+
+  const createChatRoom = async (oneUserItem) => {
+    console.log("createChatRoom");
+    
+    try {
+      // TODO if there is already a chat room between these 2 users
+      // then redirect to the existing chat room
+      // otherwise, create a new chatroom with these users.
+
+      // connect authenticated user with the chat room
+
+
+      const authUser = await Auth.currentAuthenticatedUser();
+      const loggedInUserId = authUser.attributes.sub;
+      const dbUser = await DataStore.query(User, loggedInUserId);
+
+      if (!dbUser) {
+        Alert.alert("There was an error creating the group");
+        return;
+      }
+      // Create a chat room
+      const newChatRoomData = {
+        newMessages: 1,
+        Admin: dbUser,
+      };
+      if (oneUserItem.length > 1) {
+        console.log(oneUserItem.length,"oneUserItem.length");
+        
+        newChatRoomData.name = "New group";
+        newChatRoomData.imageUri =
+          "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/group.jpeg";
+
+      }
+
+      const newChatRoom = await DataStore.save(new ChatRoom(newChatRoomData));
+
+
+      if (dbUser) {
+        await addUserToChatRoom(dbUser, newChatRoom);
+      }
+
+      // connect users user with the chat room
+      await Promise.all(
+        oneUserItem.map((user) => addUserToChatRoom(user, newChatRoom))
+      );
+      if (newChatRoom.id) {
+        console.log(newChatRoom.id,"newChatRoom.id");
+        
+        navigation.navigate("ChatRoomScreen", { id: newChatRoom.id });
+
+      }
+    } catch (error) {
+      console.log(error);
+
+
+    }
+
+  };
+
+  const moveon = (roomId)=>{
+    setDropdownVisibleuser(false)
+
+    navigation.navigate("ChatRoomScreen", { id: roomId });
+  }
+  const onUserPress = async () => {
+
+    const authUser = await Auth.currentAuthenticatedUser();
+    const dbUser = await DataStore.query(User, authUser.attributes.sub);
+
+    if (dbUser, oneUserItem) {
+      
+      const chatroomuser = await (await DataStore.query(ChatRoomUser)).filter((item) => {
+        return (
+          item?.userId === dbUser?.id || item?.userId === oneUserItem?.id
+        )
+      })
+
+      const duplicatedChatRoomIds = chatroomuser.filter((item, index, self) => {
+        // استخدام indexOf للتحقق إذا كانت هذه العنصر مكررة مسبقًا في المصفوفة
+        return self.findIndex((el) => el.chatRoomId === item.chatRoomId) !== index;
+      });
+      console.log(duplicatedChatRoomIds,"duplicatedChatRoomIds");
+
+
+      const chatRoomId = await Promise.all(
+        duplicatedChatRoomIds.map(async (i) => {
+          return i?.chatRoomId;
+        })
+      )
+
+      if (chatRoomId) {
+        const chatroomdetails = await Promise.all(chatRoomId.map(async (i) => {
+          return (
+            await DataStore.query(ChatRoom, i)
+          )
+        }))
+
+        if (chatroomdetails) {
+          const filterRoom = await chatroomdetails.filter((i) => {
+            return (
+              i?.isRoom === null
+            )
+          })
+          if (filterRoom.length > 0) {
+            console.log(filterRoom, "filterRoom");
+            const roomId = filterRoom[0].id;
+            console.log("Navigating to room:", roomId);
+            moveon(roomId)
+         
+
+          } else {
+            await createChatRoom([oneUserItem]);
+
+          }
+
+        }
+
+
+      }
+
+    }
+
+
+
+
+  };
+
+
+
   return (
     <Pressable onLongPress={onLongPress}
       onPress={onPress}>
@@ -156,7 +265,10 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem, isSelected, onPress, i
             }
 
           </TouchableOpacity>
+          <TouchableOpacity onPress={onUserPress}>
           <MaterialIcons name="message" size={24} color="black" />
+
+          </TouchableOpacity>
         </View>
 
       </View>
