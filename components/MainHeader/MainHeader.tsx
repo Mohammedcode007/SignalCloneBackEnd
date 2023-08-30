@@ -16,7 +16,6 @@ const RoomsHeader = ({title}) => {
   const [user, setuser] = useState();
 
   const { notify } = useSelector((state) => state.mainReducer);
-  console.log(notify, "notify");
 
 
   const { signOut } = useAuthenticator();

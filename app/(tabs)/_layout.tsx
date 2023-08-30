@@ -76,6 +76,14 @@ export default function TabLayout() {
           
         }}
       />
+          <Tabs.Screen
+        name="test"
+        options={{
+          headerTitle: () => <RoomsHeader title='Settings'/>,
+          tabBarIcon: ({ color }) => <Ionicons name="settings" size={24} color={color} />,
+          
+        }}
+      />
     </Tabs>
   );
 }

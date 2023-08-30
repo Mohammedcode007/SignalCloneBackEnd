@@ -38,7 +38,6 @@ const ChatRoomScreen = () => {
 
   const dispatch = useDispatch();
 
-  const navigation = useNavigation();
 
 
 
