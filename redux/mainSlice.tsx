@@ -6,7 +6,8 @@ const initialState = {
   rooms: [],
   join:[],
   exitMessageContent:'',
-  notify:0
+  notify:0,
+  isLogin: false
 };
 
 const mainSlice = createSlice({
@@ -23,6 +24,13 @@ const mainSlice = createSlice({
     addTonotify: (state, action) => {
       state.notify=action.payload
     },
+    setIsLoginTrue: (state) => {
+      state.isLogin = true;
+    },
+    
+    setIsLoginFalse: (state) => {
+      state.isLogin = false;
+    },
     // removeFromnotify: (state, action) => {
     //   const notifyToRemove = action.payload;
     //   state.notify = state.notify.filter(room => room.id !== roomIdToRemove);
@@ -36,5 +44,9 @@ const mainSlice = createSlice({
   },
 });
 
-export const { addToActive,setjoin,setexitMessageContent,removeFromActive,addTonotify } = mainSlice.actions;
+export const { addToActive,setjoin,
+  setexitMessageContent,removeFromActive,
+  addTonotify,
+  setIsLoginTrue,
+  setIsLoginFalse } = mainSlice.actions;
 export default mainSlice.reducer;

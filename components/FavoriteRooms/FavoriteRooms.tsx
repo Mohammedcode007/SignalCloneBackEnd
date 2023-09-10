@@ -13,7 +13,7 @@ import { addToActive, setjoin } from '../../redux/mainSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const FavoriteRooms = () => {
-  const {rooms,join} = useSelector((state) => state.mainReducer);
+  const { rooms, join } = useSelector((state) => state.mainReducer);
 
   const chatRoomData = chatRoomDummy;
   const navigation = useNavigation();
@@ -23,36 +23,44 @@ const FavoriteRooms = () => {
   const [favoriteChatRooms, setFavoriteChatRooms] = useState<ChatRoom[]>([]);
 
   const dispatch = useDispatch();
+  const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // حالة التحميل الأولية
 
   useEffect(() => {
     const getFav = async () => {
-      const authUser = await Auth.currentAuthenticatedUser();
-      const dbUser = await DataStore.query(User, authUser.attributes.sub);
-      const favList = (await DataStore.query(Favorite)).filter((i) => {
-        return i?.userID === dbUser?.id;
-      }).map((i) => {
-        return i?.chatroomID;
-      });
-  
-      if (favList.length > 0) {
-        const chatRoomsfav = await Promise.all(
-          favList.map(async (chatroomId) => {
-            const chatRoom = await DataStore.query(ChatRoom, chatroomId);
-            return chatRoom;
-          })
-        );
-  
-        setChatRoom(chatRoomsfav);
-        console.log(chatRoomsfav, "chatRoomsfav");
+      setIsLoading(true); // بدء التحميل
+
+      try {
+        const authUser = await Auth.currentAuthenticatedUser();
+        const dbUser = await DataStore.query(User, authUser.attributes.sub);
+        const favList = (await DataStore.query(Favorite)).filter((i) => {
+          return i?.userID === dbUser?.id;
+        }).map((i) => {
+          return i?.chatroomID;
+        });
+
+        if (favList.length > 0) {
+          const chatRoomsfav = await Promise.all(
+            favList.map(async (chatroomId) => {
+              const chatRoom = await DataStore.query(ChatRoom, chatroomId);
+              return chatRoom;
+            })
+          );
+
+          setChatRoom(chatRoomsfav);
+          console.log(chatRoomsfav, "chatRoomsfav");
+        }
+        console.log(favList, "favList");
+      } catch (error) {
+        console.log('Error fetching favorite chat rooms:', error);
+      } finally {
+        setIsLoading(false); // انتهاء التحميل
       }
-      console.log(favList, "favList");
     };
-  
+
     getFav();
   }, []);
-  
-  
-  
+
   const route = useRoute();
   const fetchChatRoom = async () => {
     try {
@@ -88,19 +96,16 @@ const FavoriteRooms = () => {
   };
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
-
   const fetchUsers = async (ItemcRoom) => {
 
     const fetchedUsersId = (await DataStore.query(ChatRoomUser))
       .filter((chatRoomUser) => chatRoomUser.chatRoomId === ItemcRoom?.id)
       .map((chatRoomUser) => chatRoomUser.userId);
 
-
     const UserDetails = await Promise.all(fetchedUsersId.map(async (fetchedUser) => await DataStore.query(User, fetchedUser)));
-    if(fetchedUsersId)
-    setAllUsers(fetchedUsersId);
+    if (fetchedUsersId)
+      setAllUsers(fetchedUsersId);
   };
-
 
   useEffect(() => {
     fetchChatRoom();
@@ -108,33 +113,32 @@ const FavoriteRooms = () => {
   }, [ItemcRoom]);
 
   useEffect(() => {
-    const checkusers = async ()=>{
+    const checkusers = async () => {
       const authUser = await Auth.currentAuthenticatedUser();
       const loggedInUserId = authUser.attributes.sub;
       const dbUser = await DataStore.query(User, loggedInUserId);
-  
+
       if (!dbUser) {
         Alert.alert("There was an error creating the group");
         return;
       }
       if (dbUser && ItemcRoom) {
-    
+
         await addUserToChatRoom(dbUser, ItemcRoom);
-        
 
       }
     }
-    
+
     checkusers()
   }, [allUsers]);
 
   const addUserToChatRoom = async (dbUser, ItemcRoom) => {
     console.log('إضافة مستخدم إلى غرفة الدردشة:', dbUser, ItemcRoom);
-  
+
     const isUserInside = allUsers?.filter((user) => user === dbUser?.id);
-  
+
     console.log('هل المستخدم داخل الغرفة:', isUserInside);
-  
+
     if (isUserInside.length > 0) {
       console.log('الانتقال إلى غرفة الدردشة...');
       navigation.navigate('ChatRoomScreen', { id: ItemcRoom.id });
@@ -147,9 +151,9 @@ const FavoriteRooms = () => {
               chatRoom: ItemcRoom,
             })
           );
-  
+
           console.log('تم حفظ ChatRoomUser:', savedData);
-  
+
           navigation.navigate('ChatRoomScreen', { id: ItemcRoom.id });
         } catch (error) {
           console.error('خطأ في حفظ ChatRoomUser:', error);
@@ -157,16 +161,14 @@ const FavoriteRooms = () => {
       }
     }
   };
-  
 
-  
   const handleItemPress = async (item) => {
     const authUser = await Auth.currentAuthenticatedUser();
     const dbUser = await DataStore.query(User, authUser.attributes.sub);
-  
+
     if (dbUser) {
       const isBAN = (await DataStore.query(ChatRoomBanship)).filter((u) => u?.userID === dbUser?.id && u?.chatroomID === item?.id);
-  
+
       if (isBAN.length > 0) {
         // User is banned, show alert
         Alert.alert("You are banned from this room.");
@@ -179,28 +181,24 @@ const FavoriteRooms = () => {
       }
     }
   };
-  
-  
-  const [refreshing, setRefreshing] = useState(false);
 
-const onRefresh = async () => {
-  setRefreshing(true);
-  // قم بجلب البيانات أو أداء أي مهام تحديث هنا
-  await fetchChatRoom();
-  await  fetchUsers(ItemcRoom)
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // قم بجلب البيانات أو أداء أي مهام تحديث هنا
+    await fetchChatRoom();
+    await fetchUsers(ItemcRoom);
 
-  setRefreshing(false);
-};
+    setRefreshing(false);
+  };
 
-
-const  [listOfRooms , setlistOfRooms] = useState<ChatRoom | null>(null);
+  const [listOfRooms, setlistOfRooms] = useState<ChatRoom | null>(null);
 
   return (
     <View style={styles.page}>
       <FlatList
         data={chatRoom}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item,index }) => (
+        renderItem={({ item, index }) => (
           <TouchableOpacity onPress={() => handleItemPress(item)}>
             <ChatRoomItem chatRoomDataItem={item} index={index} />
           </TouchableOpacity>
@@ -209,15 +207,22 @@ const  [listOfRooms , setlistOfRooms] = useState<ChatRoom | null>(null);
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        ListEmptyComponent={() => (
+          isLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" /> // عرض دائرة التحميل إذا كانت isLoading true
+          ) : (
+            <Text>No favorite chat rooms available.</Text>
+          )
+        )}
       />
-
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   page: {
     flex: 1,
   },
 });
 
-export default FavoriteRooms
+export default FavoriteRooms;

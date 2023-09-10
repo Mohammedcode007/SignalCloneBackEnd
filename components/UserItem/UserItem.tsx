@@ -164,23 +164,33 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem,setDropdownVisibleuser,
 
   };
 
-  const moveon = (roomId)=>{
-    setDropdownVisibleuser(false)
-
-    navigation.navigate("ChatRoomScreen", { id: roomId });
-  }
+  const moveon = async (roomId) => {
+    // setDropdownVisibleuser(false);
+  
+    try {
+      await navigation.navigate("ChatRoomScreen", { id: roomId });
+    } catch (error) {
+      console.error("Error navigating to ChatRoomScreen:", error);
+    }
+  };
+  
   const onUserPress = async () => {
 
     const authUser = await Auth.currentAuthenticatedUser();
     const dbUser = await DataStore.query(User, authUser.attributes.sub);
 
     if (dbUser, oneUserItem) {
+      console.log(oneUserItem,"oneUserItem");
+      
       
       const chatroomuser = await (await DataStore.query(ChatRoomUser)).filter((item) => {
         return (
           item?.userId === dbUser?.id || item?.userId === oneUserItem?.id
         )
       })
+
+      console.log(chatroomuser,"chatroomuser");
+
 
       const duplicatedChatRoomIds = chatroomuser.filter((item, index, self) => {
         // استخدام indexOf للتحقق إذا كانت هذه العنصر مكررة مسبقًا في المصفوفة
@@ -239,7 +249,16 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem,setDropdownVisibleuser,
       onPress={onPress}>
       <View style={styles.container}>
         <View style={{ flex: 1, display: 'flex', flexDirection: "row", justifyContent: 'space-between', alignItems: 'center' }}>
-          <Image style={styles.image} source={{ uri: oneUserItem?.imageUri }} />
+{
+  oneUserItem?.imageUri ? (
+    <Image style={styles.image} source={{ uri: oneUserItem?.imageUri }} />
+
+  ) : (
+    <Image style={styles.image} source={require('../../assets/images/manlogo.png')} />
+
+  )
+}
+
           <View style={styles.RightContainer}>
             <View >
 
@@ -265,7 +284,7 @@ const UserItem: React.FC<UserItemProps> = ({ oneUserItem,setDropdownVisibleuser,
             }
 
           </TouchableOpacity>
-          <TouchableOpacity onPress={onUserPress}>
+          <TouchableOpacity onPress={onUserPress} style={{marginHorizontal:5}}>
           <MaterialIcons name="message" size={24} color="black" />
 
           </TouchableOpacity>

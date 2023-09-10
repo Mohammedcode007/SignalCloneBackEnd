@@ -12,7 +12,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToActive, removeFromActive, setexitMessageContent } from '../redux/mainSlice';
 
 const ChatRoomScreen = () => {
-  const { exitMessageContent } = useSelector((state) => state.mainReducer);
 
   const [messages, setMessages] = useState<MessageModel[]>([]);
   const [messageReplyTo, setMessageReplyTo] = useState<MessageModel | null>(
@@ -37,9 +36,6 @@ const ChatRoomScreen = () => {
 
 
   const dispatch = useDispatch();
-
-
-
 
   useEffect(() => {
 
@@ -137,8 +133,6 @@ const ChatRoomScreen = () => {
 
 
   };
-
-
 
 
   const fetchMessages = async () => {

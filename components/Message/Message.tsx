@@ -486,7 +486,7 @@ const Message: React.FC<MessageProps> = (MessageProps) => {
 
             const exitMessage = await DataStore.save(
               new MessageModel({
-                content: `${user?.name}  set ban by ${dbUser.name} `,
+                content: `  ${user?.name}  set ban by ${dbUser.name} `,
                 userID: '80ecd97c-2071-70f7-79e6-4036fb2d5dbb',
                 chatroomID: message?.chatroomID,
               })

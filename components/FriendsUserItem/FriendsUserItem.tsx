@@ -157,11 +157,11 @@ useEffect(()=>{
                     >
                         {
                             oneUserItem?.imageUri ? (<Image style={[styles.image, {
-                                borderColor: ckeckStatus === "online" ? 'green' : '',
+                                borderColor: ckeckStatus === "online" ? 'green' : 'transparent',
                                 borderWidth: ckeckStatus === "online" ? 2 : 0
                             }]} source={{ uri: oneUserItem?.imageUri }} />):(
                                 <Image style={[styles.image, {
-                                    borderColor: ckeckStatus === "online" ? 'green' : '',
+                                    borderColor: ckeckStatus === "online" ? 'green' : 'transparent',
                                     borderWidth: ckeckStatus === "online" ? 2 : 0
                                 }]} source={require('../../assets/images/manlogo.png')} />
                             )

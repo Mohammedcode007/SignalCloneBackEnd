@@ -14,7 +14,7 @@ export default function TabOneScreen() {
   const chatRoomData = chatRoomDummy;
   const navigation = useNavigation();
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
-  
+
   const route = useRoute();
 
   const fetchChatRoom = async () => {
@@ -62,7 +62,7 @@ export default function TabOneScreen() {
   };
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedChatRoom, setSelectedChatRoom] = useState(null);
-  
+
   const closeModal = () => {
     setIsModalVisible(false);
   };
@@ -72,29 +72,28 @@ export default function TabOneScreen() {
     setIsModalVisible(true); // عرض النموذج
   };
   const deleteChatRoom = async (chatRoomId) => {
-console.log(chatRoomId,"chatRoomId");
+    console.log(chatRoomId, "chatRoomId");
 
     try {
-      
+
       // Fetch the chat room you want to delete
       const chatRoomToDelete = await DataStore.query(ChatRoom, chatRoomId);
-  
+
       // Delete the chat room
       if (chatRoomToDelete) {
-       const data = await DataStore.delete(chatRoomToDelete);
-       if(data)
-       {
-        setIsModalVisible(false); // عرض النموذج
-        console.log('Chat room deleted successfully.');
+        const data = await DataStore.delete(chatRoomToDelete);
+        if (data) {
+          setIsModalVisible(false); // عرض النموذج
+          console.log('Chat room deleted successfully.');
 
-       }
+        }
         // Perform any other necessary actions after deletion
       }
     } catch (error) {
       console.error('Error deleting chat room:', error);
     }
   };
-  
+
   const handleDelete = async (chatRoomId) => {
     try {
       await deleteChatRoom(chatRoomId);
@@ -105,8 +104,8 @@ console.log(chatRoomId,"chatRoomId");
     }
   };
 
- 
-  
+
+
   return (
     <View style={styles.page}>
       <FlatList
@@ -126,7 +125,7 @@ console.log(chatRoomId,"chatRoomId");
         )}
         showsHorizontalScrollIndicator={false}
       />
-      
+
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -136,7 +135,7 @@ console.log(chatRoomId,"chatRoomId");
         <TouchableWithoutFeedback onPress={closeModal}>
           <View style={styles.modalContainer}>
             <TouchableOpacity >
-              <TouchableOpacity onPress={() => handleDelete (selectedChatRoom?.id)} style={styles.deleteButton}>
+              <TouchableOpacity onPress={() => handleDelete(selectedChatRoom?.id)} style={styles.deleteButton}>
                 <AntDesign name="delete" size={20} color="black" />
                 <Text style={styles.deleteText}>Delete</Text>
               </TouchableOpacity>

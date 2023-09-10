@@ -35,6 +35,12 @@
         "projectId": "cf4f3090-4077-42e8-89bb-d8a36a9ac4ad"
       }
     },
-    "owner": "mohammed007"
-  }
+    "owner": "mohammed007",
+    "plugins": [
+      "expo-router"
+    ],
+    "sdkVersion": "49.0.0",
+    "entryPoint": ".vscode\\exponentIndex.js"
+  },
+  "name": "test"
 }

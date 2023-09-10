@@ -1,10 +1,22 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image,ScrollView } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons from Expo vector icons
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Auth } from 'aws-amplify';
 
 const SignUpScreen = () => {
   const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,23 +26,53 @@ const SignUpScreen = () => {
   const [isValidConfirmPassword, setIsValidConfirmPassword] = useState(true);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false); // Add isLoading state
 
-  const handleSignUp = () => {
-    setIsValidUsername(username !== '');
-    setIsValidEmail(validateEmail(email));
-    setIsValidPassword(validatePassword(password));
-    setIsValidConfirmPassword(confirmPassword !== '');
+  const handleSignUp = async () => {
+    const isUsernameValid = username !== '';
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    const isConfirmPasswordValid = confirmPassword !== '';
 
-    if (username === '' || !validateEmail(email) || !validatePassword(password) || confirmPassword === '') {
+    setIsValidUsername(isUsernameValid);
+    setIsValidEmail(isEmailValid);
+    setIsValidPassword(isPasswordValid);
+    setIsValidConfirmPassword(isConfirmPasswordValid);
+
+    if (!isUsernameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
+      if (!isUsernameValid) setIsValidUsername(false);
+      if (!isEmailValid) setIsValidEmail(false);
+      if (!isPasswordValid) setIsValidPassword(false);
+      if (!isConfirmPasswordValid) setIsValidConfirmPassword(false);
       return;
     }
 
     if (password !== confirmPassword) {
+      setIsValidPassword(false);
+      setIsValidConfirmPassword(false);
       return;
     }
 
-    // Add your signup logic here
-    console.log('Signup successful');
+    setIsLoading(true);
+
+    try {
+      const response = await Auth.signUp({
+        username: username,
+        password: password,
+        attributes: {
+          email: email,
+          name: name,
+        },
+      });
+      console.log(response, 'response');
+      navigation.navigate('ConfirmOTP', { username: username }); // قد تختلف الشكل الدقيق حسب تسمياتك وتصميمك
+
+    } catch (e) {
+      console.log(e, 'error');
+      Alert.alert('Oops', e.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const validateEmail = (email) => {
@@ -39,25 +81,23 @@ const SignUpScreen = () => {
   };
 
   const validatePassword = (password) => {
-    const passwordPattern = /^[A-Za-z]{8,}$/;
-    return passwordPattern.test(password);
+    return password.length >= 8; // تحقق من أن طول كلمة المرور لا يقل عن 8 أحرف
   };
 
   return (
-    
     <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={require('../assets/images/Cover.jpg')}
-        style={styles.logo}
-      />
+      <Image source={require('../assets/images/signupimage.jpg')} style={styles.logo} />
       <Text style={styles.title}>Sign Up</Text>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Username</Text>
         <TextInput
           style={[styles.input, !isValidUsername && styles.inputError]}
           placeholder="Enter your username"
-          onChangeText={(text) => setUsername(text)}
+          onChangeText={(text) => { setUsername(text); setName(text); setIsValidUsername(true); }}
         />
+        {!isValidUsername && (
+          <Text style={styles.errorText}>Username is required.</Text>
+        )}
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
@@ -66,6 +106,9 @@ const SignUpScreen = () => {
           placeholder="Enter your email"
           onChangeText={(text) => setEmail(text)}
         />
+        {!isValidEmail && (
+          <Text style={styles.errorText}>Please enter a valid email address.</Text>
+        )}
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Password</Text>
@@ -80,13 +123,12 @@ const SignUpScreen = () => {
             style={styles.eyeIcon}
             onPress={() => setPasswordVisible(!passwordVisible)}
           >
-            <MaterialIcons
-              name={passwordVisible ? 'visibility' : 'visibility-off'}
-              size={24}
-              color="grey"
-            />
+            {/* ... الكود السابق */}
           </TouchableOpacity>
         </View>
+        {!isValidPassword && (
+          <Text style={styles.errorText}>Password must be at least 8 characters.</Text>
+        )}
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Confirm Password</Text>
@@ -96,14 +138,18 @@ const SignUpScreen = () => {
           secureTextEntry={true}
           onChangeText={(text) => setConfirmPassword(text)}
         />
+        {!isValidConfirmPassword && (
+          <Text style={styles.errorText}>Please confirm your password.</Text>
+        )}
       </View>
-      {!isValidUsername && !isValidEmail && !isValidPassword && !isValidConfirmPassword && (
-        <Text style={styles.errorText}>Please fill in all fields correctly.</Text>
-      )}
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Sign Up</Text>
+        {isLoading ? (
+          <ActivityIndicator color="white" size="small" />
+        ) : (
+          <Text style={styles.buttonText}>Sign Up</Text>
+        )}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('test')}>
+      <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
         <Text style={styles.linkText}>Already have an account? Log in</Text>
       </TouchableOpacity>
     </ScrollView>

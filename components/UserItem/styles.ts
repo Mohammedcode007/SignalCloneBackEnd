@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
       height: 50,
       width: 50,
       borderRadius: 25,
-      marginRight: 10,
+      marginHorizontal: 5,
     },
     text: {
       color: 'grey'

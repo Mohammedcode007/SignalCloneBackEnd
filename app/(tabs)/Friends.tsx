@@ -233,6 +233,8 @@ export default function TabTwoScreen({ route }) {
       </View>
     );
   }
+
+  
   return (
     <View style={styles.page}>
       <FlatList

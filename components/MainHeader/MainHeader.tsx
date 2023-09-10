@@ -135,6 +135,10 @@ const RoomsHeader = ({title}) => {
     // redirect to info page
     navigation.navigate("ProfileScreen",{id:dbUser?.id});
   };
+
+  const serchPage = ()=>{
+    navigation.navigate("UserSearch")
+  }
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
       <TouchableOpacity onPress={openProfile}>
@@ -157,7 +161,10 @@ const RoomsHeader = ({title}) => {
         <AntDesign name="plus" size={24} color="black" style={{ marginRight: 15 }} />
 
       </Pressable>
+      <TouchableOpacity onPress={serchPage}>
       <EvilIcons name="search" size={24} color="black" style={{ marginRight: 15 }} />
+
+      </TouchableOpacity>
       <TouchableOpacity onPress={gotonotifcation}>
         <Ionicons name="notifications" size={20} color="black" style={{ marginRight: 15 }} />
         {

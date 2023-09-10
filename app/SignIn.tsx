@@ -1,37 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, TextInput, TouchableOpacity, StyleSheet, Image, Animated } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons from Expo vector icons
+import React, { useState } from 'react';
+import { Text, View, TextInput, TouchableOpacity, StyleSheet, Image, Animated, ActivityIndicator, Alert } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Auth } from 'aws-amplify';
 
-const SighnIn = () => {
-  const [isLoading, setisLoading] = useState(false);
-
+const SignIn = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const fadeAnim = useState(new Animated.Value(0))[0];
+  const [isLoading, setIsLoading] = useState(false); // Add isLoading state
   const navigation = useNavigation();
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
+  const onSignInPress = async () => {
+    setIsLoading(true); // Start loading animation
+    try {
+      const response = await Auth.signIn(username, password);
+      console.log(response, 'response');
+    } catch (e) {
+      console.log(e, 'error');
+      Alert.alert('Oops', e.message)
+    } 
+    setIsLoading(false); // Stop loading animation
+  };
 
   return (
     <View style={styles.container}>
       <Animated.Image
-        source={require('../assets/images/Cover.jpg')}
-        style={[styles.logo, { opacity: fadeAnim }]}
+        source={require('../assets/images/loginimage.jpg')}
+        style={[styles.logo]}
       />
       <Text style={styles.label}>Username</Text>
-      <TextInput style={styles.input} placeholder="Enter your username" />
+      <TextInput
+        style={styles.input}
+        placeholder="Enter your username"
+        value={username}
+        onChangeText={setUsername}
+      />
       <Text style={styles.label}>Password</Text>
       <View style={styles.passwordInputContainer}>
         <TextInput
           style={styles.passwordInput}
           placeholder="Enter your password"
           secureTextEntry={!passwordVisible}
+          value={password}
+          onChangeText={setPassword}
         />
         <TouchableOpacity
           style={styles.eyeIcon}
@@ -44,7 +56,7 @@ const SighnIn = () => {
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.fullWidthButton}>
+      <TouchableOpacity onPress={onSignInPress} style={styles.fullWidthButton}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
@@ -53,6 +65,11 @@ const SighnIn = () => {
       <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
         <Text style={styles.linkText}>Forgot password?</Text>
       </TouchableOpacity>
+      {isLoading && (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#4caf50" />
+        </View>
+      )}
     </View>
   );
 };
@@ -97,6 +114,12 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 10,
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent black
+  },
   fullWidthButton: {
     width: '80%',
     backgroundColor: '#4caf50',
@@ -115,4 +138,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default SighnIn
+export default SignIn

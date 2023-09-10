@@ -3,13 +3,15 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Text, View, useColorScheme, useWindowDimensions, SafeAreaView } from 'react-native';
+import { Image, Text, View, useColorScheme, useWindowDimensions, SafeAreaView, ActivityIndicator } from 'react-native';
 import ChatRoomScreen from './ChatRoomScreen';
 import { EvilIcons, Feather } from '@expo/vector-icons';
 import { Amplify, Auth, DataStore, Hub } from 'aws-amplify';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { Provider } from 'react-redux';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 
 import awsconfig from '../src/aws-exports';
 import ChatRoomHeader from '../components/ChatRoomHeader/ChatRoomHeader';
@@ -17,6 +19,11 @@ import { ChatRoom, ChatRoomUser, Message, User } from '../src/models';
 import store from '../store';
 import { useNetInfo } from '@react-native-community/netinfo';
 import * as Network from 'expo-network';
+import SignUpScreen from './SignUpScreen';
+import SignIn from './SignIn';
+import ConfirmOTP from './ConfirmOTP';
+import ResetPassword from './ResetPassword';
+import NewPasswordConfirm from './NewPasswordConfirm';
 
 Amplify.configure(awsconfig);
 export {
@@ -39,7 +46,58 @@ export default function RootLayout() {
   useEffect(() => {
     if (error) throw error;
   }, [error]);
+  const [isLoading, setIsLoading] = useState(true); // إضافة هذه الحالة
 
+  const [user, setUser] = useState(undefined);
+  // console.log(user,"user");
+
+  const checkuser = async () => {
+    try {
+      const authUser = await Auth.currentAuthenticatedUser({ bypassCache: true })
+      console.log( "authUser");
+
+      setUser(authUser)
+    } catch (error) {
+      setUser(null)
+
+    }
+    setIsLoading(false); // ضبط isLoading إلى false عند انتهاء فحص المستخدم
+
+
+  }
+  useEffect(() => {
+    console.log("Setting up Hub listener...");
+    
+    const listener = (data) => {
+      if (data.payload.event === "signIn" || data.payload.event === "signOut") {
+        console.log(data.payload.event,"data");
+  
+        checkuser();
+      }
+    }
+    
+    Hub.listen('auth', listener);
+    
+    return () => {
+      console.log("Removing Hub listener...");
+      Hub.remove('auth', listener);
+    };
+  }, []);
+  
+
+  useEffect(() => {
+    checkuser()
+  }, [])
+
+
+
+  if (isLoading) { // عرض مؤشر التحميل أثناء فحص المستخدم
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
   return (
     <>
       {/* Keep the splash screen open until the assets have loaded. In the future, we should just support async font loading with a native version of font-display. */}
@@ -49,20 +107,29 @@ export default function RootLayout() {
       <RootLayoutNav />
       
      } */}
-      {loaded &&
-        <Authenticator.Provider>
-          <Authenticator loginMechanisms={['username']}>
-            <ActionSheetProvider>
-              <Provider store={store}>
+      {loaded && (
 
-                <RootLayoutNav />
-              </Provider>
 
-            </ActionSheetProvider>
+        user ? (
+          <Authenticator.Provider>
+            <Authenticator loginMechanisms={['username']}>
+              <ActionSheetProvider>
+                <Provider store={store}>
+                  <RootLayoutNav />
 
-          </Authenticator>
-        </Authenticator.Provider>
-      }
+                </Provider>
+              </ActionSheetProvider>
+            </Authenticator>
+          </Authenticator.Provider>) : (
+          <Provider store={store}>
+            <AuthLayout />
+
+          </Provider>
+        )
+
+
+
+      )}
     </>
   );
 }
@@ -257,3 +324,21 @@ function RootLayoutNav() {
   );
 }
 
+
+function AuthLayout() {
+  const colorScheme = useColorScheme();
+  const Stack = createStackNavigator();
+
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="SignIn" component={SignIn} />
+      <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+      <Stack.Screen name="ConfirmOTP" component={ConfirmOTP} />
+      <Stack.Screen name="ResetPassword" component={ResetPassword} />
+      <Stack.Screen name="NewPasswordConfirm" component={NewPasswordConfirm} />
+
+
+    </Stack.Navigator>
+  );
+}
